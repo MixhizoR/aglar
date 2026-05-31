@@ -1772,11 +1772,11 @@
                         <p class="mb-4">Mesajın özetini (hash) <strong>özel anahtarınla</strong> şifrele. Herkes <strong>açık anahtarınla</strong> doğrulayabilir. Üç hizmet sağlar: Kimlik doğrulama, bütünlük, inkâr edilemezlik.</p>
                         <div class="mermaid">
                         graph LR
-                            A[Mesaj] --> B[Hash Fonksiyonu]
-                            B --> C[Özet (Digest)]
-                            C --> D[Özel Anahtar ile Şifrele]
-                            D --> E[Dijital İmza]
-                            E --> F[Mesaj ile Birlikte Gönder]
+                            A["Mesaj"] --> B["Hash Fonksiyonu"]
+                            B --> C["Özet (Digest)"]
+                            C --> D["Özel Anahtar ile Şifrele"]
+                            D --> E["Dijital İmza"]
+                            E --> F["Mesaj ile Birlikte Gönder"]
                         </div>
 
                         <h3 class="text-xl font-bold mb-3 text-white">Diffie-Hellman Anahtar Değişimi</h3>
