@@ -1,16 +1,32 @@
 <!DOCTYPE html>
-<html lang="tr" class="dark">
+<html lang="tr">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ağ Çalışma Uygulaması</title>
+    <title>Ağ Çalışma Rehberi</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        dark: {
+                            900: '#0f172a',
+                            800: '#1e293b',
+                            700: '#334155',
+                            600: '#475569'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        body {
-            background-color: #111827;
-            color: #f3f4f6;
+        * {
+            scroll-behavior: smooth;
         }
 
         .sidebar {
@@ -18,9 +34,27 @@
             overflow-y: auto;
         }
 
+        .sidebar::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 4px;
+        }
+
         .main-content {
             height: 100vh;
             overflow-y: auto;
+        }
+
+        .main-content::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .main-content::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 4px;
         }
 
         .nav-item {
@@ -42,14 +76,14 @@
             z-index: 50;
             background: #1e293b;
             border: 1px solid #3b82f6;
-            padding: 8px;
-            border-radius: 6px;
+            padding: 10px;
+            border-radius: 8px;
             font-size: 0.85rem;
-            width: 250px;
+            width: 280px;
             top: 100%;
             left: 50%;
             transform: translateX(-50%);
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
             pointer-events: none;
             opacity: 0;
             transition: opacity 0.2s;
@@ -69,9 +103,18 @@
 
         .mermaid {
             background: #1e293b;
-            padding: 10px;
+            padding: 12px;
             border-radius: 8px;
-            margin: 10px 0;
+            margin: 12px 0;
+            overflow-x: auto;
+        }
+
+        .dark .mermaid {
+            background: #1e293b;
+        }
+
+        html:not(.dark) .mermaid {
+            background: #f1f5f9;
         }
 
         .dict-panel {
@@ -82,508 +125,1804 @@
         .dict-panel.open {
             transform: translateX(0);
         }
+
+        .search-overlay {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
+        }
+
+        .search-overlay.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .content-fade {
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .quiz-option {
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .quiz-option:hover {
+            background-color: #3b82f620;
+            border-color: #3b82f6;
+        }
+
+        .quiz-option.correct {
+            background-color: #166534;
+            border-color: #22c55e;
+            color: #bbf7d0;
+        }
+
+        .quiz-option.incorrect {
+            background-color: #991b1b;
+            border-color: #ef4444;
+            color: #fecaca;
+        }
+
+        .quiz-option.disabled {
+            pointer-events: none;
+        }
+
+        .scroll-top-btn {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .scroll-top-btn.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        html:not(.dark) body {
+            background-color: #f8fafc;
+            color: #1e293b;
+        }
+
+        html:not(.dark) .sidebar {
+            background-color: #ffffff;
+            border-color: #e2e8f0;
+        }
+
+        html:not(.dark) .nav-item:hover {
+            background-color: #f1f5f9;
+        }
+
+        html:not(.dark) .dict-panel {
+            background-color: #ffffff;
+            border-color: #e2e8f0;
+        }
+
+        html:not(.dark) .tooltip {
+            background: #ffffff;
+            border-color: #3b82f6;
+            color: #1e293b;
+        }
+
+        html:not(.dark) .content-box {
+            background-color: #f1f5f9;
+        }
+
+        html:not(.dark) .exam-box {
+            background-color: #fef2f2;
+            border-color: #f87171;
+            color: #991b1b;
+        }
+
+        .content-box {
+            background-color: #1e293b;
+            padding: 16px;
+            border-radius: 8px;
+            margin: 8px 0;
+            border-left: 4px solid #3b82f6;
+        }
+
+        .exam-box {
+            background-color: #7f1d1d33;
+            border: 1px solid #ef4444;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 12px 0;
+        }
+
+        .progress-ring {
+            transform: rotate(-90deg);
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+
+            .sidebar.mobile-open {
+                display: block;
+                position: fixed;
+                z-index: 40;
+                width: 280px;
+            }
+        }
     </style>
 </head>
 
-<body class="flex">
+<body class="flex bg-gray-900 text-gray-100">
 
     <!-- Kenar Çubuğu -->
-    <nav class="sidebar w-72 bg-gray-800 border-r border-gray-700 flex-shrink-0 p-4 hidden md:block">
-        <h1 class="text-xl font-bold mb-6 text-blue-400">Ağ Çalışma Rehberi</h1>
-        <ul id="nav-list">
-            <!-- JS ile doldurulacak -->
-        </ul>
-        <button onclick="toggleDictionary()"
-            class="mt-6 w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded">
-            📖 Sözlük
+    <nav id="sidebar" class="sidebar w-72 bg-gray-800 border-r border-gray-700 flex-shrink-0 p-4 hidden md:block">
+        <div class="flex items-center gap-2 mb-2">
+            <span class="text-2xl">🌐</span>
+            <h1 class="text-lg font-bold text-blue-400">Ağ Çalışma Rehberi</h1>
+        </div>
+        <p class="text-xs text-gray-500 mb-4">Kapsamlı Ağ Teknolojileri Eğitim Platformu</p>
+
+        <!-- İlerleme Çubuğu -->
+        <div class="mb-4 p-3 bg-gray-700/50 rounded-lg">
+            <div class="flex justify-between text-xs mb-1">
+                <span class="text-gray-400">İlerleme</span>
+                <span id="progress-text" class="text-blue-400">0%</span>
+            </div>
+            <div class="w-full bg-gray-600 rounded-full h-2">
+                <div id="progress-bar" class="bg-blue-500 h-2 rounded-full transition-all duration-500"
+                    style="width: 0%"></div>
+            </div>
+        </div>
+
+        <ul id="nav-list" class="text-sm"></ul>
+
+        <div class="mt-4 flex gap-2">
+            <button onclick="toggleDictionary()"
+                class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-3 rounded text-sm">
+                📖 Sözlük
+            </button>
+            <button onclick="openSearch()" class="bg-gray-700 hover:bg-gray-600 text-white py-2 px-3 rounded text-sm"
+                title="Ctrl+K">
+                🔍
+            </button>
+        </div>
+
+        <!-- Dark/Light Toggle -->
+        <button onclick="toggleTheme()" id="theme-toggle"
+            class="mt-3 w-full bg-gray-700 hover:bg-gray-600 text-white py-2 px-3 rounded text-sm">
+            🌙 Karanlık Mod
         </button>
     </nav>
 
+    <!-- Mobil Üst Çubuk -->
+    <div
+        class="md:hidden fixed top-0 left-0 right-0 bg-gray-800 border-b border-gray-700 p-3 z-30 flex items-center justify-between">
+        <button onclick="toggleSidebar()" class="text-white p-1">☰ Menü</button>
+        <span class="text-blue-400 font-bold text-sm">Ağ Rehberi</span>
+        <div class="flex gap-2">
+            <button onclick="openSearch()" class="text-white p-1">🔍</button>
+            <button onclick="toggleDictionary()" class="text-white p-1">📖</button>
+        </div>
+    </div>
+
     <!-- Ana İçerik -->
-    <main class="main-content flex-1 p-6 md:p-10" id="main-content">
-        <div class="md:hidden mb-4">
-            <button onclick="document.getElementById('mobile-menu').classList.toggle('hidden')"
-                class="bg-gray-800 p-2 rounded">Menü</button>
-            <div id="mobile-menu" class="hidden bg-gray-800 mt-2 p-4 rounded absolute z-40">
-                <ul id="nav-list-mobile"></ul>
-                <button onclick="toggleDictionary()"
-                    class="mt-4 w-full bg-blue-600 text-white py-2 px-4 rounded">Sözlük</button>
-            </div>
-        </div>
-        <div id="content-area" class="max-w-4xl mx-auto">
-            <!-- İçerik buraya enjekte edilecek -->
-        </div>
+    <main class="main-content flex-1 p-6 md:p-10 pt-16 md:pt-10" id="main-content">
+        <div id="content-area" class="max-w-4xl mx-auto content-fade"></div>
     </main>
 
     <!-- Sözlük Paneli -->
     <div id="dict-panel"
         class="dict-panel fixed top-0 right-0 h-full w-80 bg-gray-800 border-l border-gray-700 p-6 z-50 shadow-2xl">
-        <button onclick="toggleDictionary()" class="absolute top-4 right-4 text-gray-400 hover:text-white">✖</button>
-        <h2 class="text-xl font-bold mb-4 text-blue-400">Sözlük</h2>
+        <button onclick="toggleDictionary()"
+            class="absolute top-4 right-4 text-gray-400 hover:text-white text-xl">✖</button>
+        <h2 class="text-xl font-bold mb-4 text-blue-400">📖 Ağ Sözlüğü</h2>
         <input type="text" id="dict-search" placeholder="Terim ara..."
-            class="w-full mb-4 p-2 bg-gray-700 rounded text-white" onkeyup="filterDictionary()">
-        <div id="dict-list" class="overflow-y-auto h-[calc(100vh-10rem)]">
-            <!-- JS ile doldurulacak -->
+            class="w-full mb-4 p-2 bg-gray-700 rounded text-white text-sm border border-gray-600 focus:border-blue-500 outline-none"
+            onkeyup="filterDictionary()">
+        <div id="dict-list" class="overflow-y-auto h-[calc(100vh-10rem)]"></div>
+    </div>
+
+    <!-- Arama Paneli -->
+    <div id="search-overlay" class="search-overlay fixed inset-0 bg-black/60 z-50 flex items-start justify-center pt-20"
+        onclick="closeSearch(event)">
+        <div class="bg-gray-800 rounded-xl w-full max-w-lg mx-4 shadow-2xl border border-gray-700"
+            onclick="event.stopPropagation()">
+            <div class="p-4 border-b border-gray-700 flex items-center gap-3">
+                <span class="text-gray-400">🔍</span>
+                <input type="text" id="search-input" placeholder="Konu, terim veya anahtar kelime ara..."
+                    class="flex-1 bg-transparent text-white outline-none text-sm" oninput="performSearch(this.value)">
+                <kbd class="text-xs text-gray-500 bg-gray-700 px-2 py-1 rounded">ESC</kbd>
+            </div>
+            <div id="search-results" class="max-h-96 overflow-y-auto p-2">
+                <p class="text-gray-500 text-sm p-4 text-center">Aramak için yazmaya başlayın...</p>
+            </div>
         </div>
     </div>
 
-    <script>
-        // --- VERİ YAPILARI ---
+    <!-- Scroll to Top -->
+    <button onclick="scrollToTop()" id="scroll-top-btn"
+        class="scroll-top-btn fixed bottom-6 right-6 bg-blue-600 hover:bg-blue-700 text-white w-12 h-12 rounded-full shadow-lg z-40 text-xl">
+        ↑
+    </button>
 
+    <script>
+        // ========== SÖZLÜK ==========
         const dictionary = {
-            "RTT": "Gidiş-Dönüş Süresi (Round Trip Time): Küçük bir paketin istemciden sunucuya gidip geri gelmesi için geçen süre.",
-            "Yayılma Gecikmesi": "Bir bitin yönlendiriciden bağlantıya gitmesi için gereken süre: d/s (mesafe/hız).",
-            "İletim Gecikmesi": "Bir paketin tüm bitlerini bağlantıya itmek için geçen süre: L/R (uzunluk/oran).",
-            "Paket Anahtarlama": "Kaynaklar ayrılmaz; paketler bağımsız olarak iletilir. Patlamalı (bursty) veriler için verimlidir.",
-            "Devre Anahtarlama": "Yol boyunca kaynaklar ayrılır (FDM/TDM). Performans garantiler ama boşta kalan kapasiteyi israf eder.",
-            "FDM": "Frekans Bölmeli Çoğullama: Bant genişliğini frekans bantlarına böler.",
-            "TDM": "Zaman Bölmeli Çoğullama: Zamanı yuvalara (slot) böler.",
-            "Protokol": "Gönderilen/alınan mesajların formatını, sırasını ve gerçekleştirilen eylemleri yöneten kurallar.",
-            "HTTP": "HiperMetin Aktarım Protokolü: Web'in uygulama katmanı protokolü, TCP kullanır.",
-            "SMTP": "Basit Posta Aktarım Protokolü: E-posta göndermek için İtme (Push) protokolü, TCP kullanır.",
-            "DNS": "Alan Adı Sistemi: Makine adlarını IP adreslerine çevirir. Dağıtık, hiyerarşik veritabanı.",
-            "DASH": "HTTP Üzerinden Dinamik Adaptif Akış: Bant genişliğine göre farklı kalite oranlarında video akışı.",
-            "CDN": "İçerik Dağıtım Ağı: İçeriğin kopyalarını coğrafi olarak dağıtılmış düğümlerde saklar.",
-            "Çoğullama": "Birden fazla soketten veri toplayıp başlık bilgisi ekleme.",
-            "Ayrıştırma": "Alınan segmentleri IP ve Port numaralarını kullanarak doğru sokete teslim etme.",
-            "MSS": "Maksimum Segment Boyutu: Bir TCP segmentindeki uygulama katmanı verisinin maksimum miktarı.",
-            "rdt": "Güvenilir Veri Aktarımı: Güvenilmez kanallar üzerinden hatasız, sıralı teslimat sağlayan protokoller.",
-            "GBN": "Geri Dön (Go-Back-N): Göndericinin N penceresi olduğu, alıcının sadece birikimli ACK gönderdiği boru hattı protokolü.",
-            "SR": "Seçmeli Tekrar (Selective Repeat): Alıcının tek tek onayladığı; göndericinin sadece kayıp olanları yeniden gönderdiği protokol.",
-            "TCP": "İletim Kontrol Protokolü: Güvenilir, bağlantı yönelimli, akış ve tıkanıklık kontrollü.",
-            "UDP": "Kullanıcı Verigramı Protokolü: Güvenilmez, bağlantısız aktarım protokolü.",
-            "AIMD": "Toplamalı Artış Çarpımsal Azalış: TCP tıkanıklık kontrol algoritması.",
-            "cwnd": "Tıkanıklık Penceresi: Göndericinin iletebileceği veri miktarını sınırlayan TCP değişkeni.",
-            "MTU": "Maksimum İletim Birimi: En büyük bağlantı katmanı çerçeve boyutu.",
-            "CIDR": "Sınıfsız Alanlar Arası Yönlendirme: Adresin alt ağ kısmının rastgele uzunlukta olması (a.b.c.d/x).",
-            "DHCP": "Dinamik Ana Bilgisayar Yapılandırma Protokolü: Ana bilgisayarların dinamik olarak IP adresi almasını sağlar.",
-            "NAT": "Ağ Adres Çevirisi: Özel iç adresleri tek bir genel dış IP'ye eşler.",
-            "CRC": "Döngüsel Artıklık Kontrolü: Bağlantı katmanında kullanılan güçlü hata algılama kodu.",
-            "CSMA/CD": "Çarpışma Algılamalı Taşıyıcı Duyarlı Çoklu Erişim: Ethernet'te kullanılır.",
-            "CSMA/CA": "Çarpışmadan Kaçınmalı Taşıyıcı Duyarlı Çoklu Erişim: WiFi'de (802.11) kullanılır.",
-            "ARP": "Adres Çözümleme Protokolü: Bir alt ağ içindeki IP adresini MAC adresine eşler.",
-            "MIMO": "Çoklu Giriş Çoklu Çıkış: Verimliliği/artışı artırmak için birden fazla anten kullanma.",
-            "OFDMA": "Dik Frekans Bölmeli Çoklu Erişim: Spektrumu dik alt taşıyıcılara böler.",
-            "RSA": "Rivest-Shamir-Adelson: Büyük asal sayıları çarpanlarına ayırmaya dayalı açık anahtarlı şifreleme algoritması.",
-            "Dijital İmza": "Özel anahtarla verinin özetinin (hash) şifrelenerek otantiklik ve bütünlüğün kanıtlanması.",
-            "TLS": "Aktarım Katmanı Güvenliği: TCP üzerinden şifreleme, kimlik doğrulama, bütünlük sağlar.",
-            "IPsec": "IP Güvenliği: Ağ katmanı güvenlik protokolü (AH/ESP), verigramlarını şifrelemek için kullanılır."
+            "RTT": "Gidiş-Dönüş Süresi (Round Trip Time): Küçük bir paketin istemciden sunucuya gidip geri gelmesi için geçen süre. Örneğin; ping komutu ile ölçülür.",
+            "Yayılma Gecikmesi": "Bir bitin yönlendiriciden bağlantıya gitmesi için gereken süre: d/s (mesafe / ışık hızı). Fiziksel mesafeye bağlıdır.",
+            "İletim Gecikmesi": "Bir paketin tüm bitlerini bağlantıya itmek için geçen süre: L/R (paket uzunluğu / bant genişliği). Bağlantının hızına bağlıdır.",
+            "Kuyruk Gecikmesi": "Paketin yönlendiricideki kuyrukta bekleme süresi. Trafik yoğunluğuna bağlıdır.",
+            "İşleme Gecikmesi": "Yönlendiricinin paketi kontrol etme ve yönlendirme tablosuna bakma süresi.",
+            "Paket Anahtarlama": "Verinin parçalara ayrılıp her birinin bağımsız olarak yönlendirildiği iletişim yöntemi. Kaynaklar önceden ayrılmaz, patlamalı veriler için verimlidir.",
+            "Devre Anahtarlama": "İletişim süresince kaynakların önceden ayrıldığı iletişim yöntemi. Telefon ağı buna örnektir. Garantili performans ama kaynak israfı.",
+            "FDM": "Frekans Bölmeli Çoğullama (Frequency Division Multiplexing): Bant genişliğini farklı frekans aralıklarına bölerek eşzamanlı iletişim sağlar.",
+            "TDM": "Zaman Bölmeli Çoğullama (Time Division Multiplexing): Zamanı slotlara bölerek her kullanıcının sırayla iletişim kurmasını sağlar.",
+            "Protokol": "İletişimdeki tarafların uyması gereken kurallar kümesi. Mesajların formatı, sırası ve gerçekleştirilen eylemleri tanımlar.",
+            "HTTP": "HiperMetin Aktarım Protokolü (HyperText Transfer Protocol): Web sayfalarını transfer eden uygulama katmanı protokolü. TCP port 80/443 kullanır.",
+            "HTTPS": "HTTP'nin güvenli versiyonu. TLS şifrelemesi ile veriler şifreli aktarılır.",
+            "SMTP": "Basit Posta Aktarım Protokolü (Simple Mail Transfer Protocol): E-posta göndermek için kullanılır. TCP port 25 kullanır. İtme (push) tabanlıdır.",
+            "POP3": "Posta Ofisi Protokolü (Post Office Protocol v3): E-postayı sunucudan istemciye çekmek için kullanılır. E-postayı sunucudan siler.",
+            "IMAP": "İnternet Erişim Protokolü (Internet Message Access Protocol): E-postayı sunucudan okumak için kullanılır. E-postayı sunucuda tutar, birden fazla cihazdan erişim sağlar.",
+            "DNS": "Alan Adı Sistemi (Domain Name System): İnsan tarafından okunabilir alan adlarını (google.com) IP adreslerine çeviren dağıtık, hiyerarşik veritabanı sistemi.",
+            "DASH": "HTTP Üzerinden Dinamik Adaptif Akış (Dynamic Adaptive Streaming over HTTP): Video içeriğinin farklı kalite seviyelerinde parçalara ayrıldığı, istemcinin bant genişliğine göre seçim yaptığı streaming protokolü.",
+            "CDN": "İçerik Dağıtım Ağı (Content Distribution Network): İçeriğin coğrafi olarak dağıtılmış sunucularda kopyalandığı altyapı. Kullanıcıya en yakın sunucudan içerik teslim eder.",
+            "Çoğullama": "Tek bir bağlantı üzerinden birden fazla veri akışını birleştirme işlemi. Veri başlıklarında bilgiler kullanılarak ayrıştırılır.",
+            "Ayrıştırma": "Alınan verilerin, IP adresi ve port numaraları kullanarak doğru uygulama/sokete teslim edilmesi işlemi.",
+            "Soket": "Uygulama ile aktarım katmanı arasındaki kapı. Bir uygulamanın ağ üzerinden veri gönderip alması için gerekli arayüz.",
+            "MSS": "Maksimum Segment Boyutu (Maximum Segment Segment): Bir TCP segmentindeki uygulama katmanı verisinin izin verilen maksimum boyutu.",
+            "rdt": "Güvenilir Veri Aktarımı (Reliable Data Transfer): Güvenilmez ağ katmanı üzerinde hatasız ve sıralı veri aktarımı sağlayan protokol ailesi.",
+            "GBN": "Geri Dön (Go-Back-N): Göndericinin N pencere boyutunda paket gönderdiği, alıcının sadece en son doğru alınan paket için birikimli onay gönderdiği boru hattı protokolü.",
+            "SR": "Seçmeli Tekrar (Selective Repeat): Gönderici ve alıcının N pencere boyutuna sahip olduğu, alıcının her paketi ayrı ayrı onayladığı, sadece kayıp paketlerin yeniden gönderildiği protokol.",
+            "TCP": "İletim Kontrol Protokolü (Transmission Control Protocol): Güvenilir, bağlantı yönelimli, akış ve tıkanıklık kontrollü aktarım protokolü.",
+            "UDP": "Kullanıcı Verigramı Protokolü (User Datagram Protocol): Güvenilmez, bağlantısız, hafif ve hızlı aktarım protokolü. Oyun, video streaming gibi gecikmeye duyarlı uygulamalarda kullanılır.",
+            "AIMD": "Toplamalı Artış Çarpımsal Azalış (Additive Increase Multiplicative Decrease): TCP tıkanıklık kontrolünde kullanılan algoritma. Kayıp olmadan bant genişliği lineer artar, kayıp olursa yarıya düşer.",
+            "cwnd": "Tıkanıklık Penceresi (Congestion Window): Göndericinin ağ üzerinde ne kadar veri gönderebileceğini kontrol eden TCP değişkeni.",
+            "rwnd": "Alma Penceresi (Receive Window): Alıcının ne kadar veri alabileceğini gösteren, akış kontrolü için kullanılan TCP değişkeni.",
+            "ssthresh": "Eşik Değeri (Slow Start Threshold): Yavaş başlatma ile tıkanıklıktan kaçınma arasında geçiş yapılan cwnd değerşi.",
+            "MTU": "Maksimum İletim Birimi (Maximum Transmission Unit): Bir ağ bağlantısı üzerinden gönderilebilecek en büyük çerçeve boyutu.",
+            "CIDR": "Sınıfsız Alanlar Arası Yönlendirme (Classless Inter-Domain Routing): IP adreslerinin alt ağ portionunun rastgele uzunlukta olabildiği (a.b.c.d/x) adresleme yöntemi.",
+            "DHCP": "Dinamik Ana Bilgisayar Yapılandırma Protokolü (Dynamic Host Configuration Protocol): Ağdaki cihazların otomatik olarak IP adresi, ağ maskesi ve gateway almasını sağlayan protokol.",
+            "NAT": "Ağ Adres Çevirisi (Network Address Translation): Özel (private) iç IP adreslerini tek bir genel (public) IP adresine eşleyen teknik. IPv4 kıtlığını hafifletir.",
+            "ARP": "Adres Çözümleme Protokolü (Address Resolution Protocol): Bilinen bir IP adresini bilinmeyen MAC adresine eşleyen protokol. Aynı alt ağ içinde çalışır.",
+            "RARP": "Ters Adres Çözümleme Protokolü (Reverse ARP): MAC adresinden IP adresini bulmaya yarar. DHCP ile büyük ölçüde yerini almıştır.",
+            "CRC": "Döngüsel Artıklık Kontrolü (Cyclic Redundancy Check): Bağlantı katmanında kullanılan güçlü hata algılama tekniği. Polinom bölme işlemine dayanır.",
+            "CSMA/CD": "Çarpışma Algılamalı Taşıyıcı Duyarlı Çoklu Erişim (Carrier Sense Multiple Access with Collision Detection): Ethernet'te kullanılır. İletmeden önce dinle, çarpışmayı algıla, geri çekil.",
+            "CSMA/CA": "Çarpışmadan Kaçınmalı Taşıyıcı Duyarlı Çoklu Erişim (Carrier Sense Multiple Access with Collision Avoidance): WiFi'de kullanılır. Çarpışmayı algılamak yerine önlemeye çalışır.",
+            "MAC Adresi": "Medya Erişim Kontrolü adresi: Donanım düzeyinde benzersiz 48 bitlik adres. Her ağ arayüz kartına (NIC) üretimde atanır.",
+            "Ethernet": "Bağlantı katmanı protokolü ailesi. CSMA/CA kullanır, IEEE 802.3 standardıdır. Günümüzde genellikle anahtarlı (switched) yapıda çalışır.",
+            "VLAN": "Sanal Yerel Ağ (Virtual LAN): Fiziksel olarak aynı anahtarda olmayan cihazları mantıksal olarak aynı ağda birleştiren teknoloji.",
+            "MIMO": "Çoklu Giriş Çoklu Çıkış (Multiple Input Multiple Output): Verimliliği ve güvenilirliği artırmak için birden fazla anten kullanma tekniği.",
+            "OFDMA": "Dik Frekans Bölmeli Çoklu Erişim (Orthogonal Frequency Division Multiple Access): Spektrumu dar alt taşıyıcılara bölerek birden fazla kullanıcıya aynı anda bant genişliği atayan teknik. 4G/5G'de kullanılır.",
+            "MPLS": "Çoklu Protokol Etiketleme Sistemi (Multi-Protocol Label Switching): Paketlere etiket ekleyerek yönlendirmeyi hızlandıran teknik. Çekirdek ağlarda kullanılır.",
+            "RSA": "Rivest-Shamir-Adleman: Büyük asal sayıların çarpanlarına ayrılması zorluğuna dayalı açık anahtarlı şifreleme algoritması.",
+            "Dijital İmza": "Özel anahtarla mesaj özetinin (hash) şifrelenerek otantiklik, bütünlük ve inkâr edilemezliğin kanıtlanması tekniği.",
+            "TLS": "Aktarım Katmanı Güvenliği (Transport Layer Security): TCP bağlantısı üzerinde şifreleme, kimlik doğrulama ve bütünlük sağlayan protokol. HTTPS'in temelidir.",
+            "SSL": "Güvenli Soketler Katmanı (Secure Sockets Layer): TLS'nin eski versiyonu. Günümüzde TLS tercih edilir.",
+            "IPsec": "IP Güvenliği (Internet Protocol Security): Ağ katmanında güvenli iletişim sağlayan protokol paketi. VPN bağlantılarda广泛 kullanılır.",
+            "WPA2": "Kablosuz Güvenlik Koruması v2 (WiFi Protected Access v2): WiFi ağları için güvenlik standardı. AES şifreleme kullanır. 4 yönlü el sıkışması ile oturum anahtarı üretir.",
+            "WPA3": "WPA'nın en güncel versiyonu. Daha güçlü şifreleme, SAE (Simultaneous Authentication of Equals) kullanır.",
+            "Firewall": "Güvenlik Duvarı: Ağ trafiğini belirli kurallara göre filtreleyen cihaz/yazılım. Paket filtreleme, durum tabanlı ve uygulama katmanı filtreleme yapabilir.",
+            "IDS": "İdz Sistemi (Intrusion Detection System): Ağ trafiğini izleyerek şüpheli etkinlikleri tespit eden sistem. Pasif bir izleme aracıdır.",
+            "VPN": "Sanal Özel Ağ (Virtual Private Network): Genel ağ (internet) üzerinden şifreli tünel oluşturarak güvenli uzaktan erişim sağlayan teknoloji.",
+            "OSPF": "Açık Kısa Yol İlkeli (Open Shortest Path First): Bir iç ağ (intra-AS) yönlendirme protokolü. Durum vektörü yerine bağlantı durumu (link state) yaklaşımı kullanır.",
+            "BGP": "Sınır Ağları Protokolü (Border Gateway Protocol): Farklı otonom sistemler (inter-AS) arasındaki yönlendirmeyi sağlayan protokol. İnternetin sırt omurgasıdır.",
+            "SDN": "Yazılım Tanımlı Ağ (Software Defined Networking): Ağ kontrol düzlemini veri düzleminden ayırarak merkezi olarak programlanabilir ağ yönetimi sağlayan mimari.",
+            "OpenFlow": "SDN için geliştirilen iletişim protokolü. Yönlendiriciler/anahtarlar ile merkezi kontrolcü arasındaki iletişimi sağlar.",
+            "IPv4": "İnternet Protokolü sürüm 4: 32 bit adres alanına sahip, noktası ile ayrılmış 4 ondalık sayı (192.168.1.1) formatında adresleme sistemi.",
+            "IPv6": "İnternet Protokolü sürüm 6: 128 bit adres alanına sahip, hexadecimal iki nokta üst üste ayrılmış adresleme sistemi. IPv4 kıtlığının çözümü.",
+            "ICMP": "İnternet Kontrol Mesajları Protokolü (Internet Control Message Protocol): Ağ katmanı hatalarını bildirmek ve ağ yönetimini sağlamak için kullanılır. Ping ve Traceroute bu protokolü kullanır.",
+            "Bluetooth": "Kısa menzilli (10-100m), düşük güç tüketimli kablosuz iletişim teknolojisi. Kişisel alan ağları (PAN) için tasarlanmıştır.",
+            "ZigBee": "Düşük güç tüketimli, düşük veri hızına sahip kablosuz iletişim protokolü. Akıllı ev ve IoT cihazlarında kullanılır.",
+            "Diffie-Hellman": "İki tarafın güvenli olmayan bir kanal üzerinde ortak bir gizli anahtar oluşturmasını sağlayan anahtar değişimi protokolü.",
+            "Sertifika Otoritesi (CA)": "Açık anahtarların özgün sahiplerine ait olduğunu doğrulayan güvenilir üçüncü taraf kurum. Dijital sertifika verir."
         };
 
+        // ========== İÇERİK VERİSİ ==========
         const contentData = {
             "ch1": {
                 title: "Bölüm 1: Giriş",
-                content: `
-            <h2 class="text-2xl font-bold mb-4">1.1 İnternet Nedir?</h2>
-            <ul class="list-disc pl-6 mb-6 space-y-2">
-                <li><span class="dict-term" data-term="Protokol">Protokol<span class="tooltip">${dictionary["Protokol"]}</span></span> mesajların formatını, sırasını ve eylemleri yönetir.</li>
-                <li><strong>Cıvatalar ve Somunlar Görünümü:</strong> Milyarlarca bağlı cihaz (uç sistemler), iletişim bağlantıları (fiber, bakır, radyo) ve paket anahtarları (yönlendiriciler, anahtarlar).</li>
-                <li><strong>Hizmet Görünümü:</strong> Uygulamalara (Web, akış, e-posta) programlama arayüzleri (soketler) aracılığıyla hizmet sağlayan altyapı.</li>
-            </ul>
+                sections: [
+                    {
+                        id: "1.1", title: "1.1 İnternet Nedir?",
+                        content: `
+                        <div class="content-box">
+                            <p class="text-blue-300 font-semibold mb-2">📌 Bu konuda ne öğreneceksin?</p>
+                            <p class="text-sm text-gray-300">İnternetin fiziksel yapısı (donanımlar) ve sunduğu hizmetler (yazılımsal taraf) hakkında temel bir bilgi edineceksin.</p>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3 text-white">Cıvatalar ve Somunlar Görünümü (Nuts & Bolts)</h3>
+                        <p class="mb-4 leading-relaxed">İnterneti bir şehir gibi düşün. Bu şehirde <strong>milyarlarca bina</strong> (bilgisayar, telefon, sunucu – bunlara <em>uç sistemler</em> diyoruz), bu binaları birbirine bağlayan <strong>yollar</strong> (fiber optik kablolar, bakır hatlar, kablosuz radyo dalgaları – bunlara <em>iletim Medyaları</em> diyoruz) ve kavşaklar (yönlendiriciler, anahtarlar – bunlara <em>paket anahtarları</em> diyoruz) var.</p>
+                        <ul class="list-disc pl-6 mb-4 space-y-2">
+                            <li><strong>Uç Sistemler (End Systems):</strong> Web tarayıcısı, e-posta istemcisi gibi uygulamalar çalıştırır. <em>İstemci-sunucu</em> veya <em>eşler arası (P2P)</em> modelde iletişim kurar.</li>
+                            <li><strong>İletim Medyaları:</strong> Fiziksel ortam. Fiber optik (ışık ile veri iletimi, çok hızlı), bakır kablo (elektrik sinyali), radyo dalgaları (kablosuz iletişim).</li>
+                            <li><strong>Paket Anahtarları (Routers/Switches):</strong> Veriyi bir noktadan diğerine iletir. Yönlendirici (router) ağlar arası, anahtar (switch) aynı ağ içi iletişimde kullanılır.</li>
+                        </ul>
 
-            <h2 class="text-2xl font-bold mb-4">1.2 Ağ Kenarı</h2>
-            <ul class="list-disc pl-6 mb-6 space-y-2">
-                <li><strong>Erişim Ağları:</strong>
-                    <ul class="list-disc pl-6 mt-1">
-                        <li>Kablo (HFC): Paylaşımlı bant genişliği, hibrit fiber-koaksiyel.</li>
-                        <li>DSL: Merkez ofise özel hat, mevcut telefon hatlarını kullanır.</li>
-                        <li>FTTH: Eve Kadar Fiber (Fiber To The Home).</li>
-                        <li>Kablosuz: WLAN (WiFi), Hücresel (4G/5G).</li>
-                    </ul>
-                </li>
-                <li><strong>Fiziksel Ortam:</strong> Yönlendirilmiş (Twisted pair, Koaksiyel, Fiber) vs. Yönlendirilmemiş (Radyo, WiFi, Uydu).</li>
-            </ul>
+                        <h3 class="text-xl font-bold mb-3 text-white">Hizmet Görünümü</h3>
+                        <p class="mb-4 leading-relaxed">İnterneti bir <strong>hizmet</strong> olarak düşünürsek: Uygulamalar için programlama arayüzü (<em>soketler</em>) sağlar. Bir web tarayıcısı, e-posta istemcisi veya oyun – hepsi bu soketleri kullanarak ağ üzerinden iletişim kurar. Aynen bir elektrik prizinin cihaza güç sağlaması gibi, internet de uygulamalara iletişim hizmeti sağlar.</p>
 
-            <h2 class="text-2xl font-bold mb-4">1.3 Ağ Çekirdeği</h2>
-            <div class="bg-red-900/50 border border-red-500 text-red-100 p-3 rounded my-2"><strong>⚠️ KLASİK SINAV ODAĞI:</strong> Paket Anahtarlama vs Devre Anahtarlama'yı karşılaştırın. Paket anahtarlamanın patlamalı veriler için neden daha verimli olduğunu ancak gecikmelere/kayıplara neden olduğunu, devre anahtarlamanın ise performansı garanti ettiğini ancak kaynakları israf ettiğini açıklayın.</div>
-            <ul class="list-disc pl-6 mb-6 space-y-2">
-                <li><span class="dict-term" data-term="Devre Anahtarlama">Devre Anahtarlama<span class="tooltip">${dictionary["Devre Anahtarlama"]}</span></span>: Ayrılmış yol, kaynakları ayırır (FDM/TDM).</li>
-                <li><span class="dict-term" data-term="Paket Anahtarlama">Paket Anahtarlama<span class="tooltip">${dictionary["Paket Anahtarlama"]}</span></span>: Ayırma yok, istatistiksel çoğullama.</li>
-                <li><strong>Yönlendirme (Forwarding):</strong> Yerel eylem (paketi çıkış bağlantısına taşıma).</li>
-                <li><strong>Rotlama (Routing):</strong> Küresel eylem (kaynaktan hedefe yolu belirleme).</li>
-            </ul>
-            <div class="mermaid">
-            graph LR
-                A[Devre Anahtarlama] -->|Ayrılmış| B(FDM/TDM)
-                C[Paket Anahtarlama] -->|Paylaşımlı| D[Sakla ve İlet]
-                D --> E[Kuyruk Gecikmesi]
-                D --> F[Paket Kaybı]
-            </div>
+                        <div class="content-box">
+                            <p class="text-yellow-300 font-semibold mb-2">🔑 Gerçek Hayat Örneği</p>
+                            <p class="text-sm">YouTube'a bir video yüklediğinde, video dosyası parçalara ayrılır, bu parçalar internet ağı üzerinden (birçok yönlendiriciden geçerek) YouTube sunucularına ulaşır. Alıcı taraf bu parçaları birleştirir ve izler. Bunu sağlayan tüm altyapı "cıvatalar ve somunlar" görünümüdür.</p>
+                        </div>
+                    `
+                    },
+                    {
+                        id: "1.2", title: "1.2 Ağ Kenarı",
+                        content: `
+                        <div class="content-box">
+                            <p class="text-blue-300 font-semibold mb-2">📌 Bu konuda ne öğreneceksin?</p>
+                            <p class="text-sm text-gray-300">İnternete bağlanmak için kullanılan farklı erişim yöntemlerini ve fiziksel ortamları öğreneceksin.</p>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3 text-white">Erişim Ağları</h3>
+                        <p class="mb-4 leading-relaxed">Evinizi (veya işletmenizi) internete bağlayan "son kilometre" bağlantısıdır. Farklı yöntemler:</p>
+                        <ul class="list-disc pl-6 mb-4 space-y-2">
+                            <li><strong>Kablo Erişimi (HFC - Hybrid Fiber Coaxial):</strong> TV kablo altyapısını kullanır. Fiber optik evin yakınına kadar gelir, ardından koaksiyel kablo ile eve ulaşır. <em>Paylaşımlı bant genişliği</em> sunduğundan, komşularınız aynı hattı kullandığında hızınız düşebilir.</li>
+                            <li><strong>DSL (Digital Subscriber Line):</strong> Mevcut telefon hatlarını kullanır. Merkez ofise özel hat (dedicated) olduğundan bant genişliği paylaşılmaz. Hız mesafeye bağlıdır – merkez ofise ne kadar yakınsanız o kadar hızlıdır.</li>
+                            <li><strong>FTTH (Fiber To The Home):</strong> Eve kadar fiber optik kablo. En hızlı seçenek (1 Gbps+). Işık sinyalleriyle veri iletilir.</li>
+                            <li><strong>Kablosuz Erişim:</strong>
+                                <ul class="list-disc pl-6 mt-1 space-y-1">
+                                    <li><strong>WLAN (WiFi):</strong> Kısa menzilli (50-100m), ev ve iş yeri ağları için.</li>
+                                    <li><strong>Hücresel Ağ (4G/5G):</strong> Geniş kapsama alanı. Baz istasyonları aracılığıyla çalışır.</li>
+                                    <li><strong>Uydu:</strong> Uzak bölgeler için. Yüksek gecikme (RTT ~600ms) dezavantajı var.</li>
+                                </ul>
+                            </li>
+                        </ul>
 
-            <h2 class="text-2xl font-bold mb-4">1.4 Performans</h2>
-            <div class="bg-red-900/50 border border-red-500 text-red-100 p-3 rounded my-2"><strong>⚠️ KLASİK SINAV ODAĞI:</strong> Toplam düğüm gecikmesini hesaplayın. d_nodal = d_proc + d_queue + d_trans + d_prop. Özellikle iletim ve yayılma gecikmelerini hesaplamak ve aralarındaki farkı açıklamak için hazırlıklı olun.</div>
-            <ul class="list-disc pl-6 mb-6 space-y-2">
-                <li><span class="dict-term" data-term="İletim Gecikmesi">İletim Gecikmesi<span class="tooltip">${dictionary["İletim Gecikmesi"]}</span></span>: L / R (Uzunluk / Bağlantı Bant Genişliği).</li>
-                <li><span class="dict-term" data-term="Yayılma Gecikmesi">Yayılma Gecikmesi<span class="tooltip">${dictionary["Yayılma Gecikmesi"]}</span></span>: d / s (Mesafe / Ortamdaki ışık hızı).</li>
-                <li><strong>Kuyruk Gecikmesi:</strong> Trafik yoğunluğuna (La/R) bağlıdır. La/R > 1 ise teorik olarak sonsuz gecikme.</li>
-                <li><strong>Veri Üretimi (Throughput):</strong> Aktarılan bit oranı. Darboğaz bağlantısı uçtan uca veri üretimini sınırlar: min(R1, R2...).</li>
-            </ul>
+                        <h3 class="text-xl font-bold mb-3 text-white">Fiziksel Medya</h3>
+                        <p class="mb-4 leading-relaxed">Veriyi taşıyan fiziksel ortamlar ikiye ayrılır:</p>
+                        <ul class="list-disc pl-6 mb-4 space-y-2">
+                            <li><strong>Yönlendirilmiş Medya (Guided):</strong> Sinyal belirli bir fiziksel yoldan gider.
+                                <ul class="list-disc pl-6 mt-1">
+                                    <li><em>Bükümlü Çift (Twisted Pair):</em> En yaygın. Ethernet kablosu. UTP (eşlenmemiş) ve STP (ekranlı) türleri var.</li>
+                                    <li><em>Koaksiyel Kablo:</em> TV ve eski internet bağlantıları. Daha yüksek bant genişliği.</li>
+                                    <li><em>Fiber Optik:</em> Işık sinyali ile veri iletimi. En yüksek hız, en uzun mesafe.</li>
+                                </ul>
+                            </li>
+                            <li><strong>Yönlendirilmemiş Medya (Unguided):</strong> Hava boşluğunda yayılır.
+                                <ul class="list-disc pl-6 mt-1">
+                                    <li><em>Radyo Dalgaları:</em> WiFi, Bluetooth, hücresel.</li>
+                                    <li><em>Mikrodalga:</em> Büyük mesafeler (Point-to-Point).</li>
+                                    <li><em>Kızılötesi:</em> Kısa menzil (uzaktan kumanda).</li>
+                                </ul>
+                            </li>
+                        </ul>
 
-            <h2 class="text-2xl font-bold mb-4">1.5 Protokol Katmanları</h2>
-            <div class="mermaid">
-            graph TD
-                A[Uygulama] --> B[Aktarım]
-                B --> C[Ağ]
-                C --> D[Bağlantı]
-                D --> E[Fiziksel]
-            </div>
-            <ul class="list-disc pl-6 mb-6 space-y-2">
-                <li><strong>Kapsülleme (Encapsulation):</strong> Mesaj -> Segment (Ht) -> Verigram (Hn) -> Çerçeve (Hl). Her katman kendi başlığını ekler.</li>
-            </ul>
+                        <div class="mermaid">
+                        graph LR
+                            A[FTTH - Fiber] -->|En Hızlı| B[1 Gbps+]
+                            C[Kablo - HFC] -->|Orta Hız| D[100 Mbps]
+                            E[DSL] -->|Düşük Hız| F[25 Mbps]
+                            G[Hücresel - 5G] -->|Kablosuz| H[1 Gbps]
+                        </div>
+                    `
+                    },
+                    {
+                        id: "1.3", title: "1.3 Ağ Çekirdeği",
+                        content: `
+                        <div class="content-box">
+                            <p class="text-blue-300 font-semibold mb-2">📌 Bu konuda ne öğreneceksin?</p>
+                            <p class="text-sm text-gray-300">Verinin ağlar arası nasıl iletildiğini, iki temel anahtarlama yöntemini ve aralarındaki farkları öğreneceksin.</p>
+                        </div>
 
-            <h2 class="text-2xl font-bold mb-4">1.6 Güvenlik</h2>
-            <ul class="list-disc pl-6 mb-6 space-y-2">
-                <li>Kötü niyetli kişiler: Paket dinleme (Sniffing), IP Sahteciliği (Spoofing), Hizmet Durdurma (DoS).</li>
-                <li>Savunma: Kimlik Doğrulama, Gizlilik (şifreleme), Bütünlük kontrolleri, Güvenlik Duvarları.</li>
-            </ul>
-        `
+                        <div class="exam-box">
+                            <p class="font-bold mb-1">⚠️ SINAV ODAĞI</p>
+                            <p class="text-sm">Paket Anahtarlama vs Devre Anahtarma arasındaki farkları karşılaştır. Paket anahtarlamanın patlamalı veriler için neden verimli olduğunu, devre anahtarlamanın neden garantili ama israf edici olduğunu açıkla.</p>
+                        </div>
+
+                        <h3 class="text-xl font-bold mb-3 text-white">Devre Anahtarlama (Circuit Switching)</h3>
+                        <p class="mb-4 leading-relaxed">Eski telefon ağı gibi düşün. Arama yaptığında, çağrı süresince <strong>iki uç arasında özel bir bağlantı (devre) ayrılır</strong>. Bu devre boyunca kaynaklar (zaman dilimleri veya frekans bantları) sadece sana aittir. Başka kimse bu kaynağı kullanamaz.</p>
+                        <ul class="list-disc pl-6 mb-4 space-y-2">
+                            <li><strong>FDM (Frekans Bölmeli):</strong> Bant genişliği frekans aralıklarına bölünür. Her kullanıcıya ayrı bir frekans bandı verilir.</li>
+                            <li><strong>TDM (Zaman Bölmeli):</strong> Zaman slotlara bölünür. Her kullanıcı sırayla iletişim kurar.</li>
+                            <li><strong>Artısı:</strong> Garantili bant genişliği, sabit gecikme.</li>
+                            <li><strong>Eksisi:</strong> Kullanılmayan kaynak israf edilir. Konuşmadığın anlarda bile kaynak sana ayrılmıştır.</li>
+                        </ul>
+
+                        <h3 class="text-xl font-bold mb-3 text-white">Paket Anahtarlama (Packet Switching)</h3>
+                        <p class="mb-4 leading-relaxed">Modern internetin temeli. Veri <strong>paketlere</strong> ayrılır, her paket bağımsız olarak ağa gönderilir ve <strong>yönlendiriciler</strong> tarafından hedefine yönlendirilir. Kaynaklar önceden ayrılmaz – herkes aynı kaynağı paylaşır ("istatistiksel çoğullama").</p>
+                        <ul class="list-disc pl-6 mb-4 space-y-2">
+                            <li><strong>Sakla ve İlet (Store and Forward):</strong> Yönlendirici paketin tamamını almadan iletmez.</li>
+                            <li><strong>Artısı:</strong> Kaynaklar verimli kullanılır. Patlamalı (bursty) veriler için mükemmeldir.</li>
+                            <li><strong>Eksisi:</strong> Kuyruk gecikmesi, paket kaybı, sıralama sorunları olabilir.</li>
+                        </ul>
+
+                        <div class="content-box">
+                            <p class="text-yellow-300 font-semibold mb-2">🔑 Gerçek Hayat Örneği</p>
+                            <p class="text-sm"><strong>Devre Anahtarlama:</strong> Eski telefon hattı – arama süresince hat sadece senin. <strong>Paket Anahtarlama:</strong> WhatsApp mesajı – mesajın parçaları farklı yollardan gidebilir, biraz gecikebilir ama sonuçta ulaşır. Diğer kullanıcılarla aynı个 bant genişliğini paylaşırsın.</p>
+                        </div>
+
+                        <div class="mermaid">
+                        graph TD
+                            A[Devre Anahtarlama] -->|Önceden Ayrılmış Kaynak| B[FDM/TDM]
+                            B --> C[Garantili Performans]
+                            B --> D[Kaynak İsrafı]
+                            E[Paket Anahtarlama] -->|Paylaşımlı Kaynak| F[İstatistiksel Çoğullama]
+                            F --> G[Verimli Kullanım]
+                            F --> H[Kuyruk Gecikmesi + Kayıp]
+                        </div>
+
+                        <h3 class="text-xl font-bold mb-3 text-white">Ağların Ağı (Network of Networks)</h3>
+                        <p class="mb-4 leading-relaxed">İnternet tek bir ağ değil, <strong>binlerce birbirine bağlı ağın</strong> toplamıdır. İnternet Servis Sağlayıcıları (ISS) farklı katmanlarda birbirine bağlanır:</p>
+                        <ul class="list-disc pl-6 mb-4 space-y-2">
+                            <li><strong>Alt Katman ISS (Tier-1):</strong> Uluslararası ağlar (Turkcell Superonline, Türk Telekom). Birbirleriyle "peering" anlaşması yapar.</li>
+                            <li><strong>Orta Katman ISS (Tier-2):</strong> Bölgesel ağlar. Tier-1'e ödeme yaparak trafiği dışarı gönderir.</li>
+                            <li><strong>Yerel ISS (Tier-3):</strong> Son kullanıcılara hizmet veren şirketler. Tier-2'ye ödeme yapar.</li>
+                        </ul>
+                    `
+                    },
+                    {
+                        id: "1.4", title: "1.4 Performans: Gecikme, Kayıp ve Veri Üretimi",
+                        content: `
+                        <div class="content-box">
+                            <p class="text-blue-300 font-semibold mb-2">📌 Bu konuda ne öğreneceksin?</p>
+                            <p class="text-sm text-gray-300">Bir paketin kaynaktan hedefe ulaşırken uğradığı gecikme türlerini, kayıp nedenlerini ve uçtan uca veri üretimini (throughput) hesaplamayı öğreneceksin.</p>
+                        </div>
+
+                        <div class="exam-box">
+                            <p class="font-bold mb-1">⚠️ SINAV ODAĞI</p>
+                            <p class="text-sm">Toplam düğüm gecikmesini hesapla: d_nodal = d_proc + d_queue + d_trans + d_prop. İletim ve yayılma gecikmesinin farkını bil. La/R > 1 ise kuyruk gecikmesinin sonsuza gideceğini açıkla.</p>
+                        </div>
+
+                        <h3 class="text-xl font-bold mb-3 text-white">Dört Gecikme Türü</h3>
+                        <p class="mb-4 leading-relaxed">Her yönlendiricide (düğümde) paket dört tür gecikme yaşar:</p>
+
+                        <h4 class="text-lg font-semibold mb-2 text-blue-300">1. İşleme Gecikmesi (d_proc)</h4>
+                        <p class="mb-3">Yönlendiricinin paketin başlığını okuması, hata kontrolü yapması ve yönlendirme tablosuna bakarak çıkış portunu belirlemesi için geçen süre. Genellikle <strong>mikrosaniye</strong> düzeyindedir, ihmal edilebilir.</p>
+
+                        <h4 class="text-lg font-semibold mb-2 text-blue-300">2. Kuyruk Gecikmesi (d_queue)</h4>
+                        <p class="mb-3">Paketin çıkış portundaki kuyrukta bekleme süresi. Trafik yoğunluğuna bağlıdır. <strong>La/R</strong> oranı (gelen trafik hızının çıkış hızına oranı) 1'i aştığında kuyruk sonsuz büyüür ve paketler düşmeye başlar.</p>
+
+                        <h4 class="text-lg font-semibold mb-2 text-blue-300">3. İletim Gecikmesi (d_trans)</h4>
+                        <p class="mb-3">Paketin <strong>tüm bitlerini</strong> bağlantıya (kablo) basma süresi. Formül:</p>
+                        <div class="content-box bg-gray-900 border border-blue-500">
+                            <p class="text-center text-lg font-mono text-blue-200">d_trans = L / R</p>
+                            <p class="text-center text-xs text-gray-400 mt-1">L = Paket boyutu (bit), R = Bağlantı bant genişliği (bit/sn)</p>
+                        </div>
+                        <div class="content-box mt-2">
+                            <p class="text-yellow-300 font-semibold mb-2">🔑 Örnek Hesaplama</p>
+                            <p class="text-sm">10 MB'lık bir dosyayı 1 Mbps'lik hatta gönderiyorsun:<br>
+                            L = 10 × 1024 × 1024 × 8 = 83.886.080 bit<br>
+                            R = 1.000.000 bit/sn<br>
+                            d_trans = 83.886.080 / 1.000.000 = <strong>~84 saniye</strong> sadece iletim!</p>
+                        </div>
+
+                        <h4 class="text-lg font-semibold mb-2 text-blue-300">4. Yayılma Gecikmesi (d_prop)</h4>
+                        <p class="mb-3">Bir bitin bir uca diğer uca fiziksel olarak ulaşma süresi. Mesafe ve medyadaki sinyal hızına bağlıdır.</p>
+                        <div class="content-box bg-gray-900 border border-blue-500">
+                            <p class="text-center text-lg font-mono text-blue-200">d_prop = d / s</p>
+                            <p class="text-center text-xs text-gray-400 mt-1">d = Mesafe (metre), s = Medyadaki sinyal hızı (metre/sn)</p>
+                        </div>
+
+                        <h3 class="text-xl font-bold mb-3 mt-4 text-white">Paket Kaybı</h3>
+                        <p class="mb-4">Yönlendiricinin kuyruğu dolu olduğunda gelen paket <strong>düşürülür</strong> (drop). Kuyruk doluluğu %100'e yaklaştıkça kayıp oranı artar.</p>
+
+                        <h3 class="text-xl font-bold mb-3 text-white">Uçtan Uca Veri Üretimi (End-to-End Throughput)</h3>
+                        <p class="mb-4">İki uç arasındaki gerçek veri transfer hızı, <strong>darboğaz bağlantının</strong> hızına eşittir:</p>
+                        <div class="content-box bg-gray-900 border border-blue-500">
+                            <p class="text-center text-lg font-mono text-blue-200">Uçtan uca veri üretimi = min(R₁, R₂, ..., Rₙ)</p>
+                            <p class="text-center text-xs text-gray-400 mt-1">En yavaş bağlantının hızı tüm sistemin hızını belirler</p>
+                        </div>
+                        <div class="content-box mt-2">
+                            <p class="text-yellow-300 font-semibold mb-2">🔑 Gerçek Hayat Örneği</p>
+                            <p class="text-sm">Evde 100 Mbps internetin var ama favori sunucunun çıkışı sadece 5 Mbps. Ne kadar hızlı internetin olursa olsun, download hızın en fazla 5 Mbps olur. Aynen bir boru hattında suyun en dar noktadaki hızı gibi.</p>
+                        </div>
+                    `
+                    },
+                    {
+                        id: "1.5", title: "1.5 Protokol Katmanları",
+                        content: `
+                        <div class="content-box">
+                            <p class="text-blue-300 font-semibold mb-2">📌 Bu konuda ne öğreneceksin?</p>
+                            <p class="text-sm text-gray-300">Ağ iletişiminin nasıl katmanlara ayrıldığını, her katmanın ne yaptığını ve verinin katmanlar boyunca nasıl paketlendiğini (kapsülleme) öğreneceksin.</p>
+                        </div>
+
+                        <h3 class="text-xl font-bold mb-3 text-white">Neden Katmanlı Yapı?</h3>
+                        <p class="mb-4 leading-relaxed">Ağ iletişimi çok karmaşıktır. Karmaşıklığı yönetmek için <strong>sorumlulukları</strong> ayrı katmanlara böleriz. Her katman sadece kendi işini yapar ve altındaki katmana "hizmet" sunar. Bu bir <em>katmanlı mimari</em>'dir – aynen bir restoranda şefin yemek yapması, garsonun servis yapması, kasanın ödeme alması gibi.</p>
+
+                        <h3 class="text-xl font-bold mb-3 text-white">Beş Katmanlı Model</h3>
+                        <div class="mermaid">
+                        graph TD
+                            A[5. Uygulama Katmanı - HTTP, DNS, SMTP] --> B[4. Aktarım Katmanı - TCP, UDP]
+                            B --> C[3. Ağ Katmanı - IP]
+                            C --> D[2. Bağlantı Katmanı - Ethernet, WiFi]
+                            D --> E[1. Fiziksel Katmanı - Kablo, Dalga]
+                        </div>
+                        <ul class="list-disc pl-6 mb-4 space-y-2">
+                            <li><strong>Uygulama Katmanı:</strong> Kullanıcı uygulamalarını destekler. HTTP (web), DNS (alan adı çözümleme), SMTP (e-posta) bu katmanda çalışır.</li>
+                            <li><strong>Aktarım Katmanı:</strong> Uç sistemler arasında güvenilir/güvenilmez veri transferi sağlar. TCP (güvenilir) ve UDP (hafif) bu katmandadır.</li>
+                            <li><strong>Ağ Katmanı:</strong> Paketleri kaynaktan hedefe yönlendirir. IP protokolü bu katmanın omurgasıdır.</li>
+                            <li><strong>Bağlantı Katmanı:</strong> Komşu düğümler arasında çerçeve transferi. Ethernet ve WiFi bu katmanda.</li>
+                            <li><strong>Fiziksel Katmanı:</strong> Bitleri fiziksel ortamda iletir. Elektrik sinyali, ışık, radyo dalgası.</li>
+                        </ul>
+
+                        <h3 class="text-xl font-bold mb-3 text-white">Kapsülleme (Encapsulation)</h3>
+                        <p class="mb-4 leading-relaxed">Veri aşağıdan yukarıya (uygulama → fiziksel) doğru her katmanda bir <strong>başlık (header)</strong> ekler. Aynen bir mektubun zarfının içine konulması, zarfın üstüne adres yazılması gibi.</p>
+                        <div class="content-box">
+                            <p class="font-mono text-center text-sm">
+                                <span class="text-green-400">[Mesaj]</span> →
+                                <span class="text-blue-400">[Segman Başlığı]</span><span class="text-green-400">[Mesaj]</span> →
+                                <span class="text-yellow-400">[Verigram Başlığı]</span><span class="text-blue-400">[Segman]</span> →
+                                <span class="text-red-400">[Çerçeve Başlığı]</span><span class="text-yellow-400">[Verigram]</span><span class="text-red-400">[Trailer]</span>
+                            </p>
+                        </div>
+                        <p class="text-sm text-gray-400 mt-2">Mesaj → Segment (Aktarım) → Verigram (Ağ) → Çerçeve (Bağlantı)</p>
+
+                        <h3 class="text-xl font-bold mb-3 mt-4 text-white">OSI Modeli (7 Katman)</h3>
+                        <p class="mb-4">ISO tarafından tanımlanan 7 katmanlı model. Pratikte internet 5 katmanlı model kullanır ama OSI'nin ek iki katmanı şunlardır:</p>
+                        <ul class="list-disc pl-6 mb-4 space-y-1">
+                            <li><strong>6. Sunum Katmanı:</strong> Veri formatı, şifreleme, sıkıştırma (TLS bu katmanda çalışır).</li>
+                            <li><strong>5. Oturum Katmanı:</strong> Oturum yönetimi, bağlantı kurma/surma.</li>
+                        </ul>
+                    `
+                    },
+                    {
+                        id: "1.6", title: "1.6 Ağ Güvenliği",
+                        content: `
+                        <div class="content-box">
+                            <p class="text-blue-300 font-semibold mb-2">📌 Bu konuda ne öğreneceksin?</p>
+                            <p class="text-sm text-gray-300">Ağ güvenliğinin temel tehditlerini ve savunma yöntemlerini öğreneceksin.</p>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3 text-white">Temel Tehditler</h3>
+                        <ul class="list-disc pl-6 mb-4 space-y-2">
+                            <li><strong>Paket Dinleme (Sniffing):</strong> Ağdaki paketlerin izinsiz olarak dinlenmesi. Şifrelenmemiş veriler ele geçirilebilir.</li>
+                            <li><strong>IP Sahteciliği (Spoofing):</strong> Sahte IP adresi ile paket gönderme. Kaynak adresi güvenilir yapmak için kullanılır.</li>
+                            <li><strong>Hizmet Durdurma (DoS/DDoS):</strong> Sunucuya aşırı istek göndererek çökertme. Dağınık (Distributed) versiyonunda binlerce enfekte cihaz kullanılır.</li>
+                            <li><strong>Ortadaki Adam (Man-in-the-Middle):</strong> İki taraf arasındaki iletişimi dinleme ve değiştirme.</li>
+                        </ul>
+                        <h3 class="text-xl font-bold mb-3 text-white">Savunma Hatları</h3>
+                        <ul class="list-disc pl-6 mb-4 space-y-2">
+                            <li><strong>Kimlik Doğrulama:</strong> İletişimdeki tarafların kimliklerini kanıtlaması.</li>
+                            <li><strong>Gizlilik (Şifreleme):</strong> Verilerin okunamaz hale getirilmesi.</li>
+                            <li><strong>Bütünlük:</strong> Verilerin yolculuk sırasında değiştirilmediğinin garantisi.</li>
+                            <li><strong>Güvenlik Duvarları:</strong> Ağ trafiğini filtreleyen sistemler.</li>
+                        </ul>
+                    `
+                    },
+                    {
+                        id: "1.7", title: "1.7 İnternetin Tarihi",
+                        content: `
+                        <div class="content-box">
+                            <p class="text-blue-300 font-semibold mb-2">📌 Bu konuda ne öğreneceksin?</p>
+                            <p class="text-sm text-gray-300">İnternetin nasıl evrildiğini, temel kilometre taşlarını ve bugünün internetinin nasıl oluştuğunu öğreneceksin.</p>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3 text-white">Kilometre Taşları</h3>
+                        <ul class="list-disc pl-6 mb-4 space-y-2">
+                            <li><strong>1960'lar (ARPANET):</strong> ABD Savunma Bakanlığı tarafından finanse edilen araştırma ağı. İlk paket anahtarlama deneyleri yapıldı.</li>
+                            <li><strong>1970'ler (TCP/IP):</strong> Vinton Cerf ve Bob Kahn tarafından TCP/IP protokolü geliştirildi. 1983'te ARPANET'e uygulandı – bu tarih "internentin doğum günü" sayılır.</li>
+                            <li><strong>1980'ler (DNS):</strong> Alan Adı Sistemi tanıtıldı. İnsanların sayısal IP adresleri yerine isimler kullanmasını sağladı.</li>
+                            <li><strong>1990'lar (WWW):</strong> Tim Berners-Lee World Wide Web'i icat etti. HTTP, HTML ve ilk web tarayıcısı (Mosaic) geldi. Ticari internet başladı.</li>
+                            <li><strong>2000'ler (Web 2.0):</strong> Sosyal medya, bloglar, video paylaşımı. Kullanıcılar sadece tüketici değil, içerik üreticisi oldu.</li>
+                            <li><strong>2010'lar - Günümüz:</strong> Bulut bilişim, IoT (Nesnelerin İnterneti), 5G, yapay zekâ destekli ağlar.</li>
+                        </ul>
+                        <div class="content-box">
+                            <p class="text-yellow-300 font-semibold mb-2">🔑 Önemli Bilgi</p>
+                            <p class="text-sm">İnternet "merkezi bir yerden" yönetilmez. ICANN (alan adları), IETF (protokoller), W3C (web standartları) gibi kuruluşlar gönüllülere dayalı olarak standartları belirler.</p>
+                        </div>
+                    `
+                    }
+                ],
+                quiz: [
+                    { q: "İnternette paketlerin yönlendirilmesini sağlayan cihaza ne denir?", options: ["Modem", "Yönlendirici (Router)", "Hub", "Repeater"], answer: 1 },
+                    { q: "İletim gecikmesi (d_trans) formülü nedir?", options: ["d/s", "L/R", "RTT/2", "La/R"], answer: 1 },
+                    { q: "Devre anahtarlamanın temel dezavantajı nedir?", options: ["Paket kaybı yaşar", "Çok yavaştır", "Kaynak israfı yapar", "Şifreleme desteklemez"], answer: 2 },
+                    { q: "TCP/IP modelinde kaç katman vardır?", options: ["3", "5", "7", "4"], answer: 3 },
+                    { q: "Kapsülleme işleminde mesaj önce hangi forma dönüşür?", options: ["Çerçeve", "Verigram", "Segment", "Bit"], answer: 2 }
+                ]
             },
             "ch2": {
                 title: "Bölüm 2: Uygulama Katmanı",
-                content: `
-            <h2 class="text-2xl font-bold mb-4">2.1 Ağ Uygulamalarının İlkeleri</h2>
-            <ul class="list-disc pl-6 mb-6 space-y-2">
-                <li><strong>Mimariler:</strong> İstemci-Sunucu (her zaman açık sunucu) vs. P2P (kendinden ölçeklenebilen, eşler doğrudan iletişim kurar).</li>
-                <li><strong>Soketler:</strong> Süreç ile aktarım protokolü arasındaki kapı.</li>
-                <li><strong>Aktarım Hizmetleri:</strong> TCP (güvenilir, akış kontrolü, tıkanıklık kontrolü) vs. UDP (güvenilmez, garanti yok).</li>
-            </ul>
+                sections: [
+                    {
+                        id: "2.1", title: "2.1 Ağ Uygulamalarının İlkeleri",
+                        content: `
+                        <div class="content-box">
+                            <p class="text-blue-300 font-semibold mb-2">📌 Bu konuda ne öğreneceksin?</p>
+                            <p class="text-sm text-gray-300">Ağ uygulamalarının nasıl tasarlandığını, mimari modellerini, soket kavramını ve aktarım protokolü seçimini öğreneceksin.</p>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3 text-white">Mimari Modeller</h3>
+                        <p class="mb-4 leading-relaxed">İki temel mimari vardır:</p>
+                        <ul class="list-disc pl-6 mb-4 space-y-2">
+                            <li><strong>İstemci-Sunucu (Client-Server):</strong> Sunucu her zaman çalışır ve istekleri bekler. İstemci istek gönderir. (Web tarayıcısı → Web sunucusu). Sunucunun sabit IP adresi olmalıdır.</li>
+                            <li><strong>Eşler Arası (P2P):</strong> Doğrudan iletişim. Her hem istemci hem sunucu olabilir. (BitTorrent, Skype). Kendinden ölçeklenebilir – daha fazla kullanıcı= daha fazla kaynak.</li>
+                        </ul>
 
-            <h2 class="text-2xl font-bold mb-4">2.2 Web ve HTTP</h2>
-            <div class="bg-red-900/50 border border-red-500 text-red-100 p-3 rounded my-2"><strong>⚠️ KLASİK SINAV ODAĞI:</strong> Kalıcı (Persistent) vs Kalıcı Olmayan (Non-persistent) HTTP'i ayırın. Kalıcı olmayan için yanıt süresini hesaplayın (nesne başına 2 RTT + iletim) vs kalıcı (1 RTT ek yük, boru hattı).</div>
-            <ul class="list-disc pl-6 mb-6 space-y-2">
-                <li><strong>Kalıcı Olmayan:</strong> Nesne başına bir TCP bağlantısı. Nesne başına 2 RTT (1 TCP, 1 HTTP için).</li>
-                <li><strong>Kalıcı:</strong> Tek bir TCP bağlantısı üzerinden birden fazla nesne.</li>
-                <li><strong>Çerezler (Cookies):</strong> Durumsuz protokol üzerinden durum takibi. İstemcide çerez dosyası ve sunucuda arka uç veritabanı ile sağlanır.</li>
-                <li><strong>Koşullu GET:</strong> Önbelleğin nesne tazeliğini nesneyi göndermeden doğrulamasını sağlar (If-modified-since başlığı). 304 Not Modified yanıtı.</li>
-                <li><strong>HTTP/2:</strong> HOL (Head-of-Line) engellemesini, nesneleri karelere (frame) bölüp tek bir TCP bağlantısı üzerinden aralıklı göndererek azaltır.</li>
-                <li><span class="dict-term" data-term="DASH">DASH<span class="tooltip">${dictionary["DASH"]}</span></span>: İstemci ne zaman, hangi kodlama oranında ve nereden içeriği çekeceğine karar verir.</li>
-            </ul>
-            <div class="mermaid">
-            sequenceDiagram
-                participant C as İstemci
-                participant S as Sunucu
-                C->>S: GET /nesne (If-Modified-Since: tarih)
-                alt Değişmedi
-                    S-->>C: 304 Not Modified
-                else Değişti
-                    S-->>C: 200 OK + Veri
-                end
-            </div>
+                        <h3 class="text-xl font-bold mb-3 text-white">Soketler (Sockets)</h3>
+                        <p class="mb-4 leading-relaxed">Soket, bir sürecin <strong>ağ üzerinden veri gönderip alması için kullandığı kapı</strong>. Uygulama veriyi sokete yazar, aktarım katmanı bu veriyi ağ üzerinden iletir. Aynen bir evin kapısı gibi – içeri girip çıkarsın ama duvarların, çatının (ağ altyapısı) nasıl çalıştığını bilmen gerekmez.</p>
 
-            <h2 class="text-2xl font-bold mb-4">2.3 E-posta ve DNS</h2>
-            <ul class="list-disc pl-6 mb-6 space-y-2">
-                <li><strong>E-posta:</strong> Sunucudan sunucuya <span class="dict-term" data-term="SMTP">SMTP<span class="tooltip">${dictionary["SMTP"]}</span></span> (İtme, TCP port 25). Sunucudan istemciye IMAP/POP3 (Çekme).</li>
-                <li><span class="dict-term" data-term="DNS">DNS<span class="tooltip">${dictionary["DNS"]}</span></span>: Makine adını IP'ye çevirir. Dağıtık, hiyerarşik veritabanı.
-                    <ul class="list-disc pl-6 mt-1">
-                        <li>Kök -> TLD (.com, .org) -> Yetkili (Authoritative).</li>
-                        <li>Yinelenmiş (Iterated) vs Özyinelemeli (Recursive) sorgular.</li>
-                        <li>Kayıtlar: (İsim, Değer, Tür, TTL). Türler: A, NS, CNAME, MX.</li>
-                    </ul>
-                </li>
-            </ul>
-            <div class="mermaid">
-            graph TD
-                A[Kök DNS Sunucusu] --> B[TLD .com Sunucusu]
-                B --> C[Yetkili .example.com Sunucusu]
-            </div>
+                        <h3 class="text-xl font-bold mb-3 text-white">TCP vs UDP Seçimi</h3>
+                        <div class="overflow-x-auto">
+                        <table class="w-full text-sm mb-4 border border-gray-700">
+                            <tr class="bg-gray-700"><th class="p-2 text-left">Özellik</th><th class="p-2 text-left">TCP</th><th class="p-2 text-left">UDP</th></tr>
+                            <tr class="border-t border-gray-700"><td class="p-2">Bağlantı</td><td class="p-2">Bağlantı yönelimli (el sıkışma)</td><td class="p-2">Bağlantısız</td></tr>
+                            <tr class="border-t border-gray-700"><td class="p-2">Güvenilirlik</td><td class="p-2">Güvenilir (yeniden iletim)</td><td class="p-2">Güvenilmez</td></tr>
+                            <tr class="border-t border-gray-700"><td class="p-2">Sıralama</td><td class="p-2">Sıralı teslimat</td><td class="p-2">Sırasız olabilir</td></tr>
+                            <tr class="border-t border-gray-700"><td class="p-2">Hız</td><td class="p-2">Daha yavaş (başlık + kontrol)</td><td class="p-2">Daha hızlı</td></tr>
+                            <tr class="border-t border-gray-700"><td class="p-2">Kullanım</td><td class="p-2">HTTP, SMTP, FTP</td><td class="p-2">DNS, VoIP, Oyun, Video</td></tr>
+                        </table>
+                        </div>
+                    `
+                    },
+                    {
+                        id: "2.2", title: "2.2 Web ve HTTP",
+                        content: `
+                        <div class="content-box">
+                            <p class="text-blue-300 font-semibold mb-2">📌 Bu konuda ne öğreneceksin?</p>
+                            <p class="text-sm text-gray-300">HTTP protokolünün nasıl çalıştığını, kalıcı/kalıcı olmayan bağlantı farklarını, web önbellekleme mekanizmasını ve modern HTTP sürümlerini öğreneceksin.</p>
+                        </div>
 
-            <h2 class="text-2xl font-bold mb-4">2.4 Video Akışı ve CDN'ler</h2>
-            <ul class="list-disc pl-6 mb-6 space-y-2">
-                <li><span class="dict-term" data-term="CDN">CDN<span class="tooltip">${dictionary["CDN"]}</span></span>: Tek başarısızlık noktasını/tıkanıklığı aşar. "Derinlere gir" (Akamai) vs "Eve getir" (Limelight).</li>
-            </ul>
-        `
+                        <div class="exam-box">
+                            <p class="font-bold mb-1">⚠️ SINAV ODAĞI</p>
+                            <p class="text-sm">Kalıcı olmayan HTTP'de yanıt süresini hesapla: nesne başına 2 RTT + iletim. Kalıcı HTTP'de 1 RTT ek yük ve boru hattı avantajını açıkla. Koşullu GET'ın trafiği nasıl azalttığını bil.</p>
+                        </div>
+
+                        <h3 class="text-xl font-bold mb-3 text-white">HTTP Nedir?</h3>
+                        <p class="mb-4 leading-relaxed">HTTP (HyperText Transfer Protocol), web sayfalarının <strong>istek-yanıt</strong> modeliyle çalışır. İstemci bir istek (request) gönderir, sunucu bir yanıt (response) döndürür. TCP protokolünü kullanır (port 80: HTTP, port 443: HTTPS). <strong>Durumsuz (stateless)</strong> bir protokoldür – her istek bağımsızdır, sunucu önceki istekleri hatırlamaz.</p>
+
+                        <h3 class="text-xl font-bold mb-3 text-white">Kalıcı Olmayan vs Kalıcı Bağlantı</h3>
+                        <p class="mb-2 font-semibold">Kalıcı Olmayan (Non-persistent):</p>
+                        <p class="mb-3">Her nesne (HTML dosyası, resim, CSS) için <strong>ayrı bir TCP bağlantısı</strong> açılır. Bir sayfada 10 resim varsa 10 ayrı bağlantı kurulur.</p>
+                        <div class="content-box bg-gray-900 border border-blue-500">
+                            <p class="text-center text-sm font-mono text-blue-200">Yanıt süresi = 2 RTT + Dosya boyutu / R</p>
+                            <p class="text-center text-xs text-gray-400 mt-1">1 RTT: TCP bağlantısı, 1 RTT: HTTP isteği</p>
+                        </div>
+
+                        <p class="mb-2 mt-3 font-semibold">Kalıcı (Persistent):</p>
+                        <p class="mb-3">Tek bir TCP bağlantısı üzerinden <strong>tüm nesneler</strong> gönderilir. Bağlantı belirli bir süre açık kalır.</p>
+                        <div class="content-box bg-gray-900 border border-blue-500">
+                            <p class="text-center text-sm font-mono text-blue-200">Yanıt süresi = 1 RTT + (tüm dosyalar) / R</p>
+                            <p class="text-center text-xs text-gray-400 mt-1">1 RTT ek yük, ardından boru hattı (pipelining)</p>
+                        </div>
+
+                        <h3 class="text-xl font-bold mb-3 mt-4 text-white">Çerezler (Cookies)</h3>
+                        <p class="mb-4">HTTP durumsuzdur ama <strong>çerezler</strong> sayesinde durum takibi yapılabilir. Oturum açma, alışveriş sepeti gibi işlemler için kullanılır. İstemcide depolanan küçük metin dosyalarıdır.</p>
+
+                        <h3 class="text-xl font-bold mb-3 text-white">Web Önbellekleme (Caching)</h3>
+                        <p class="mb-4">Yerel proxy sunucuları (veya tarayıcı önbelleği) daha önce indirilen nesneleri saklar. <strong>Koşullu GET</strong> (If-Modified-Since) ile sunucuya "bu nesne değişti mi?" diye sorulur. Değişmediyse sunucu 304 (Not Modified) döner, bant genişliği tasarrufu sağlanır.</p>
+
+                        <h3 class="text-xl font-bold mb-3 text-white">HTTP/2 ve HTTP/3</h3>
+                        <ul class="list-disc pl-6 mb-4 space-y-2">
+                            <li><strong>HTTP/2:</strong> Nesneleri karelere (frame) bölerek tek TCP bağlantısı üzerinden iletir. <em>Head-of-Line (HOL) engellemesini</em> azaltır ama TCP katmanında hala HOL vardır.</li>
+                            <li><strong>HTTP/3 / QUIC:</strong> TCP yerine <strong>QUIC</strong> (UDP tabanlı) kullanır. HOL engellemesini tamamen ortadan kaldırır. Daha hızlı bağlantı kurulumu.</li>
+                        </ul>
+
+                        <div class="mermaid">
+                        sequenceDiagram
+                            participant C as İstemci
+                            participant S as Sunucu
+                            Note over C,S: Koşullu GET
+                            C->>S: GET /dosya (If-Modified-Since: tarih)
+                            alt Değişmedi
+                                S-->>C: 304 Not Modified
+                            else Değişti
+                                S-->>C: 200 OK + Yeni Veri
+                            end
+                        </div>
+                    `
+                    },
+                    {
+                        id: "2.3", title: "2.3 E-posta",
+                        content: `
+                        <div class="content-box">
+                            <p class="text-blue-300 font-semibold mb-2">📌 Bu konuda ne öğreneceksin?</p>
+                            <p class="text-sm text-gray-300">E-posta gönderiminde kullanılan SMTP ve çekimde kullanılan POP3/IMAP protokollerini, e-posta sisteminin nasıl çalıştığını öğreneceksin.</p>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3 text-white">E-posta Nasıl Çalışır?</h3>
+                        <p class="mb-4 leading-relaxed">E-posta sistemi üç bileşenden oluşur: <strong>istemci</strong> (e-posta yazılımı), <strong>posta sunucusu</strong> (e-postaları depolar ve iletir) ve <strong>aktarım protokolü</strong> (SMTP, POP3, IMAP).</p>
+                        <ul class="list-disc pl-6 mb-4 space-y-2">
+                            <li><strong>SMTP (Sunucu → Sunucu):</strong> E-postayı göndermek için kullanılır. TCP port 25. <em>İtme (push)</em> protokolü – postayı sunucuya iter.</li>
+                            <li><strong>POP3 (Sunucu → İstemci):</strong> E-postayı sunucudan çeker. E-postayı sunucudan <strong>siler</strong> (varsayılan). Tek cihazdan erişim.</li>
+                            <li><strong>IMAP (Sunucu → İstemci):</strong> E-postayı sunucudan okur ama <strong>sunucuda tutar</strong>. Birden fazla cihazdan erişim sağlar. Daha modern.</li>
+                        </ul>
+                        <div class="content-box">
+                            <p class="text-yellow-300 font-semibold mb-2">🔑 Gerçek Hayat Örneği</p>
+                            <p class="text-sm">Gmail kullanıyorsun. Telefonundan ve bilgisayarından aynı e-postaları görebiliyorsun – çünkü IMAP kullanıyor. E-postalar sunucuda kalıyor, cihazlar sadece okuyor.</p>
+                        </div>
+                    `
+                    },
+                    {
+                        id: "2.4", title: "2.4 Alan Adı Sistemi (DNS)",
+                        content: `
+                        <div class="content-box">
+                            <p class="text-blue-300 font-semibold mb-2">📌 Bu konuda ne öğreneceksin?</p>
+                            <p class="text-sm text-gray-300">DNS'in nasıl çalıştığını, hiyerarşik yapısını, sorgu türlerini ve DNS kayıtlarını öğreneceksin.</p>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3 text-white">DNS Nedir?</h3>
+                        <p class="mb-4 leading-relaxed">İnternetin "telefon rehberi"dir. İnsanların hatırlayabildiği <strong>alan adlarını</strong> (google.com) bilgisayarların anlayabildiği <strong>IP adreslerine</strong> (142.250.185.78) çevirir. Dağıtık ve hiyerarşik bir veritabanıdır – tek bir sunucuda tüm bilgiler tutulmaz.</p>
+
+                        <h3 class="text-xl font-bold mb-3 text-white">Hiyerarşik Yapı</h3>
+                        <div class="mermaid">
+                        graph TD
+                            A[Kök DNS Sunucusu] --> B[TLD Sunucusu - .com]
+                            A --> C[TLD Sunucusu - .org]
+                            A --> D[TLD Sunucusu - .tr]
+                            B --> E[Yetkili Sunucu - google.com]
+                            B --> F[Yetkili Sunucu - facebook.com]
+                            C --> G[Yetkili Sunucu - wikipedia.org]
+                            D --> H[Yetkili Sunucu - youtube.com]
+                        </div>
+                        <ul class="list-disc pl-6 mb-4 space-y-2">
+                            <li><strong>Kök Sunucular:</strong> 13 tane全世界'coğrafi olarak dağıtılmış. TLD sunucularına yönlendirme yapar.</li>
+                            <li><strong>TLD Sunucuları:</strong> .com, .org, .net, .tr gibi üst düzey alan adlarını yönetir.</li>
+                            <li><strong>Yetkili (Authoritative) Sunucular:</strong> Belirli bir alan adının (google.com) DNS kayıtlarını tutar.</li>
+                        </ul>
+
+                        <h3 class="text-xl font-bold mb-3 text-white">Sorgu Türleri</h3>
+                        <ul class="list-disc pl-6 mb-4 space-y-2">
+                            <li><strong>Özyinelemeli (Recursive):</strong> İstemci tam cevabı ister. Aracı sunucu tüm sorguları yapar ve sonucu döndürür.</li>
+                            <li><strong>Yinelenmiş (Iterated):</strong> Her sunucu "bunu bilmiyorum ama şuraya sor" der. İstemci herself adımı yapar.</li>
+                        </ul>
+
+                        <h3 class="text-xl font-bold mb-3 text-white">DNS Kayıtları</h3>
+                        <div class="overflow-x-auto">
+                        <table class="w-full text-sm mb-4 border border-gray-700">
+                            <tr class="bg-gray-700"><th class="p-2 text-left">Tür</th><th class="p-2 text-left">Açıklama</th><th class="p-2 text-left">Örnek</th></tr>
+                            <tr class="border-t border-gray-700"><td class="p-2 font-mono">A</td><td class="p-2">Alan adı → IPv4 adresi</td><td class="p-2">google.com → 142.250.185.78</td></tr>
+                            <tr class="border-t border-gray-700"><td class="p-2 font-mono">AAAA</td><td class="p-2">Alan adı → IPv6 adresi</td><td class="p-2">google.com → 2607:f8b0:...</td></tr>
+                            <tr class="border-t border-gray-700"><td class="p-2 font-mono">NS</td><td class="p-2">Alan adının yetkili sunucusu</td><td class="p-2">google.com → ns1.google.com</td></tr>
+                            <tr class="border-t border-gray-700"><td class="p-2 font-mono">CNAME</td><td class="p-2">Takma ad (alias)</td><td class="p-2">www.google.com → google.com</td></tr>
+                            <tr class="border-t border-gray-700"><td class="p-2 font-mono">MX</td><td class="p-2">E-posta sunucusu</td><td class="p-2">google.com → mail.google.com</td></tr>
+                        </table>
+                        </div>
+                    `
+                    },
+                    {
+                        id: "2.5", title: "2.5 Video Akışı ve CDN'ler",
+                        content: `
+                        <div class="content-box">
+                            <p class="text-blue-300 font-semibold mb-2">📌 Bu konuda ne öğreneceksin?</p>
+                            <p class="text-sm text-gray-300">Video streaming'in zorluklarını, DASH ve CDN'lerin bu sorunları nasıl çözdüğünü, Netflix örneğini öğreneceksin.</p>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3 text-white">Video Akışının Zorlukları</h3>
+                        <p class="mb-4 leading-relaxed">Video dosyaları çok büyüktür (1 saat HD film ~5 GB). Her kullanıcıya bu boyutta dosya indirtmek hem bant genişliği hem de gecikme açısından mümkün değildir. İşte bu yüzden streaming (akış) kullanılır – video indirilmez, <strong>oynatılırken</strong> veri indirilir.</p>
+
+                        <h3 class="text-xl font-bold mb-3 text-white">DASH (HTTP Üzerinden Dinamik Adaptif Akış)</h3>
+                        <p class="mb-4 leading-relaxed">Video farklı <strong>kalite seviyelerinde</strong> kodlanır (240p, 480p, 720p, 1080p). İstemci mevcut bant genişliğine göre hangi kalitede veri isteyeceğine <strong>kendi karar verir</strong>. Bant genişliği artarsa yüksek kaliteye, azalırsa düşük kaliteye geçer. Netflix, YouTube hepsini kullanır.</p>
+
+                        <h3 class="text-xl font-bold mb-3 text-white">CDN (İçerik Dağıtım Ağı)</h3>
+                        <p class="mb-4 leading-relaxed">Netflix'in ABD'deki sunucusundan Türkiye'ye veri çekmek çok yavaş olur. CDN bu sorunu çözer: içeriği <strong>coğrafi olarak dağıtılmış</strong> sunuculara (PoP - Point of Presence) kopyalar. Kullanıcıya en yakın sunucudan veri gönderilir.</p>
+                        <ul class="list-disc pl-6 mb-4 space-y-2">
+                            <li><strong>"Derinlere Gir" (Push):</strong> İçerik önceden PoP'lara gönderilir (Akamai modeli).</li>
+                            <li><strong>"Eve Getir" (Pull):</strong> İlk istek sunucudan gelir, PoP'a kopyalanır, sonraki istekler PoP'tan karşılanır.</li>
+                        </ul>
+                        <div class="content-box">
+                            <p class="text-yellow-300 font-semibold mb-2">🔑 Netflix Örneği</p>
+                            <p class="text-sm">Netflix, ISP'lerin içine kendi sunucularını kurar (Open Connect). Bir Türk Telekom veri merkezinde Netflix sunucusu bulunur. Böylece video trafiği internet sırt omurgasından geçmez, doğrudan yerel olarak teslim edilir.</p>
+                        </div>
+                    `
+                    },
+                    {
+                        id: "2.6", title: "2.6 Soket Programlama",
+                        content: `
+                        <div class="content-box">
+                            <p class="text-blue-300 font-semibold mb-2">📌 Bu konuda ne öğreneceksin?</p>
+                            <p class="text-sm text-gray-300">UDP ve TCP soket programlamasının temellerini, istemci-sunucu iletişim modelini kodlama düzeyinde öğreneceksin.</p>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3 text-white">UDP Soket Programlama</h3>
+                        <p class="mb-4 leading-relaxed">UDP'de bağlantı kurulmaz, doğrudan paket gönderilir. Daha basittir ama güvenilmezdir.</p>
+                        <div class="content-box bg-gray-900 border border-gray-600 font-mono text-sm">
+                            <p class="text-green-400"># Sunucu (Python)</p>
+                            <p class="text-white">import socket</p>
+                            <p class="text-white">sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)</p>
+                            <p class="text-white">sock.bind(('localhost', 12000))</p>
+                            <p class="text-white">mesaj, adres = sock.recvfrom(1024)</p>
+                            <p class="text-yellow-300">print(mesaj.decode())</p>
+                            <p class="text-blue-400 mt-2"># İstemci</p>
+                            <p class="text-white">sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)</p>
+                            <p class="text-white">sock.sendto(b'Merhaba', ('localhost', 12000))</p>
+                        </div>
+
+                        <h3 class="text-xl font-bold mb-3 mt-4 text-white">TCP Soket Programlama</h3>
+                        <p class="mb-4">TCP'de önce bağlantı kurulur (3 yönlü el sıkışma), sonra veri iletilir. Daha güvenilirdir.</p>
+                        <div class="content-box bg-gray-900 border border-gray-600 font-mono text-sm">
+                            <p class="text-green-400"># Sunucu (Python)</p>
+                            <p class="text-white">import socket</p>
+                            <p class="text-white">sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)</p>
+                            <p class="text-white">sock.bind(('localhost', 12000))</p>
+                            <p class="text-white">sock.listen(1)</p>
+                            <p class="text-white">conn, adres = sock.accept()</p>
+                            <p class="text-white">mesaj = conn.recv(1024)</p>
+                            <p class="text-yellow-300">print(mesaj.decode())</p>
+                            <p class="text-blue-400 mt-2"># İstemci</p>
+                            <p class="text-white">sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)</p>
+                            <p class="text-white">sock.connect(('localhost', 12000))</p>
+                            <p class="text-white">sock.send(b'Merhaba')</p>
+                        </div>
+                        <p class="text-sm text-gray-400 mt-2">Fark: UDP'de <code class="bg-gray-700 px-1 rounded">SOCK_DGRAM</code>, TCP'de <code class="bg-gray-700 px-1 rounded">SOCK_STREAM</code> kullanılır. TCP'de <code class="bg-gray-700 px-1 rounded">connect()</code> ve <code class="bg-gray-700 px-1 rounded">listen()</code>/accept() ile bağlantı kurulur.</p>
+                    `
+                    }
+                ],
+                quiz: [
+                    { q: "HTTP'nin temel özelliği nedir?", options: ["Güvenilir olması", "Durumsuz (stateless) olması", "UDP kullanması", "Şifreli olması"], answer: 1 },
+                    { q: "DNS'de A kaydı ne yapar?", options: ["E-posta sunucusunu bulur", "Alan adını IPv4 adresine çevirir", "IPv6 adresi döndürür", "CNAME tanımlar"], answer: 1 },
+                    { q: "Kalıcı olmayan HTTP'de bir sayfadaki 5 resim için kaç TCP bağlantısı gerekir?", options: ["1", "2", "5", "10"], answer: 2 },
+                    { q: "POP3 ve IMAP arasındaki temel fark nedir?", options: ["POP3 daha hızlıdır", "IMAP e-postaları sunucuda tutar", "POP3 şifreleme kullanır", "IMAP UDP kullanır"], answer: 1 },
+                    { q: "CDN'nin temel amacı nedir?", options: ["Verileri şifrelemek", "Kullanıcıya en yakın sunucudan içerik teslim etmek", "DNS hızlandırmak", "E-posta iletmek"], answer: 1 }
+                ]
             },
             "ch3": {
                 title: "Bölüm 3: Aktarım Katmanı",
-                content: `
-            <h2 class="text-2xl font-bold mb-4">3.1 Çoğullama ve Ayrıştırma</h2>
-            <ul class="list-disc pl-6 mb-6 space-y-2">
-                <li><strong>Bağlantısız (UDP):</strong> Sadece Hedef Port + Hedef IP kullanır. Aynı soket o port için tüm verigramlarını alır.</li>
-                <li><strong>Bağlantı Yönelimli (TCP):</strong> 4'lü demet (4-tuple) kullanır: Kaynak IP, Kaynak Port, Hedef IP, Hedef Port. Her istemciye ayrı bir soket ayrılır.</li>
-            </ul>
+                sections: [
+                    {
+                        id: "3.1", title: "3.1 Aktarım Katmanı Hizmetleri",
+                        content: `
+                        <div class="content-box">
+                            <p class="text-blue-300 font-semibold mb-2">📌 Bu konuda ne öğreneceksin?</p>
+                            <p class="text-sm text-gray-300">Aktarım katmanının ağ katmanından farkını, sunduğu hizmetleri ve TCP/UDP arasındaki seçim kriterlerini öğreneceksin.</p>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3 text-white">Aktarım Katmanı Ne Yapar?</h3>
+                        <p class="mb-4 leading-relaxed">Ağ katmanı <strong>host-to-host</strong> (bir bilgisayardan diğerine) teslimat yapar. Aktarım katmanı bunu <strong>process-to-process</strong> (bir uygulamadan diğerine) teslimata yükseltir. Aynı bilgisayarda çalışan farklı uygulamalara (tarayıcı, müzik çalar, e-posta) verileri <strong>port numaraları</strong> ile ayırır.</p>
+                        <p class="mb-4">Temel fark: Ağ katmanı <em>bir bilgisayardan diğerine</em> paket iletir. Aktarım katmanı ise o bilgisayardaki <em>doğru uygulamaya</em> paketi teslim eder.</p>
+                    `
+                    },
+                    {
+                        id: "3.2", title: "3.2 Çoğullama ve Ayrıştırma",
+                        content: `
+                        <div class="content-box">
+                            <p class="text-blue-300 font-semibold mb-2">📌 Bu konuda ne öğreneceksin?</p>
+                            <p class="text-sm text-gray-300">Bir sunucudaki birden fazla uygulamaya aynı anda veri göndermek için çoğullama ve doğru uygulamaya teslim etmek için ayrıştırma nasıl yapılır öğreneceksin.</p>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3 text-white">UDP vs TCP Çoğullama</h3>
+                        <ul class="list-disc pl-6 mb-4 space-y-2">
+                            <li><strong>UDP (Bağlantısız):</strong> Sadece <em>Hedef IP + Hedef Port</em> kullanır. Aynı portu kullanan tüm uygulamalara aynı soket üzerinden veri gelir.</li>
+                            <li><strong>TCP (Bağlantı Yönelimli):</strong> <em>4'lü demet</em> kullanır: (Kaynak IP, Kaynak Port, Hedef IP, Hedef Port). Her istemci-sunucu çifti için <strong>ayrı bir soket</strong> oluşturulur.</li>
+                        </ul>
+                        <p class="mb-4">Bu yüzden aynı port numarasını kullanan farklı istemciler TCP ile sunucuya bağlanabilir – çünkü 4'lü demet her birini benzersiz tanımlar.</p>
+                    `
+                    },
+                    {
+                        id: "3.3", title: "3.3 Bağlantısız Taşıyıcı: UDP",
+                        content: `
+                        <div class="content-box">
+                            <p class="text-blue-300 font-semibold mb-2">📌 Bu konuda ne öğreneceksin?</p>
+                            <p class="text-sm text-gray-300">UDP'nin yapısını, avantajlarını ve internet sağlama toplamının nasıl çalıştığını öğreneceksin.</p>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3 text-white">UDP Nedir?</h3>
+                        <p class="mb-4 leading-relaxed">UDP, TCP'nin "hafif" versiyonudur. <strong>El sıkışma yok, bağlantı durumu yok, güvence yok</strong>. Sadece temel bir başlık (8 byte) ekler ve veriyi gönderir. Hız önemlidir, eksik veriler önemli değildir.</p>
+                        <div class="overflow-x-auto">
+                        <table class="w-full text-sm mb-4 border border-gray-700">
+                            <tr class="bg-gray-700"><th class="p-2">UDP Başlık Yapısı</th><th class="p-2">Boyut</th></tr>
+                            <tr class="border-t border-gray-700"><td class="p-2">Kaynak Port</td><td class="p-2">2 byte</td></tr>
+                            <tr class="border-t border-gray-700"><td class="p-2">Hedef Port</td><td class="p-2">2 byte</td></tr>
+                            <tr class="border-t border-gray-700"><td class="p-2">Uzunluk</td><td class="p-2">2 byte</td></tr>
+                            <tr class="border-t border-gray-700"><td class="p-2">Sağlama Toplamı</td><td class="p-2">2 byte</td></tr>
+                        </table>
+                        </div>
 
-            <h2 class="text-2xl font-bold mb-4">3.2 UDP ve Sağlama Toplamı</h2>
-            <ul class="list-disc pl-6 mb-6 space-y-2">
-                <li><span class="dict-term" data-term="UDP">UDP<span class="tooltip">${dictionary["UDP"]}</span></span>: El sıkışma yok, bağlantı durumu yok, küçük başlık, tıkanıklık kontrolü yok.</li>
-                <li><strong>İnternet Sağlama Toplamı:</strong> 16 bitlik kelimelerin (1'e tümleyen) toplamı. Hatalara karşı zayıf ama basit koruma.</li>
-            </ul>
+                        <h3 class="text-xl font-bold mb-3 text-white">İnternet Sağlama Toplamı</h3>
+                        <p class="mb-4">16 bitlik kelimelerin <strong>1'e tümleyen toplamı</strong> alınır. Göndericide hesaplanır, alıcı tarafında kontrol edilir. Hata tespit edilirse paket atılır. <strong>Zayıf ama hızlı</strong> bir koruma methodudur – güçlü koruma için CRC kullanılır.</p>
+                        <div class="content-box">
+                            <p class="text-yellow-300 font-semibold mb-2">🔑 Neden UDP Tercih Edilir?</p>
+                            <p class="text-sm"><strong>Gerçek zamanlı uygulamalarda:</strong> VoIP (sesli görüşme), online oyunlar, canlı yayınlar – biraz kayıp sorun değil ama gecikme felç edici. TCP'nin yeniden iletim beklemesi bu uygulamaları kullanılamaz hale getirir.</p>
+                        </div>
+                    `
+                    },
+                    {
+                        id: "3.4", title: "3.4 Güvenilir Veri Aktarımı İlkeleri (rdt)",
+                        content: `
+                        <div class="content-box">
+                            <p class="text-blue-300 font-semibold mb-2">📌 Bu konuda ne öğreneceksin?</p>
+                            <p class="text-sm text-gray-300">Güvenilmez bir ağ katmanı üzerinde güvenilir veri aktarımının nasıl sağlanacağını, rdt protokollerinin evrimini, boru hattı ve pencere kavramlarını öğreneceksin.</p>
+                        </div>
 
-            <h2 class="text-2xl font-bold mb-4">3.3 Güvenilir Veri Aktarımı İlkeleri (rdt)</h2>
-            <div class="bg-red-900/50 border border-red-500 text-red-100 p-3 rounded my-2"><strong>⚠️ KLASİK SINAV ODAĞI:</strong> Geri Dön (Go-Back-N - GBN) vs Seçmeli Tekrar (Selective Repeat - SR) karşılaştırması. Gönderici/alıcı pencere boyutlarını, ACK'lerin nasıl çalıştığını ve kayıp durumunda ne olduğunu açıklayın. GBN: Birikimli ACK'ler, N pencere boyutu, alıcı sıra dışı gelenleri atar. SR: Bireysel ACK'ler, N pencere boyutu, alıcı sıra dışı gelenleri tamponlar.</div>
-            <ul class="list-disc pl-6 mb-6 space-y-2">
-                <li><strong>rdt 1.0:</strong> Tamamen güvenilir kanal.</li>
-                <li><strong>rdt 2.0:</strong> Bit hatalı kanal. ACK/NAK kullanır. Ölümcül kusur: NAK/ACK bozulabilir.</li>
-                <li><strong>rdt 2.1:</strong> Kopyaları (duplicate) yönetmek için sıra numaraları (0, 1) ekler.</li>
-                <li><strong>rdt 3.0:</strong> Kayıp paketler için zaman aşımı (stop-and-wait) ekler. Çok düşük kullanım: U_sender = (L/R) / (RTT + L/R).</li>
-                <li><strong>Boru Hattı (Pipelining):</strong> Beklemeden birden fazla paket gönderme. Sıra numaraları, tamponlama ve hata kurtarma (GBN veya SR) gerektirir.</li>
-                <li><span class="dict-term" data-term="GBN">GBN<span class="tooltip">${dictionary["GBN"]}</span></span>: Gönderici penceresi N, Alıcı penceresi 1. Birikimli ACK. En eski onaylanmamışta zaman aşımı olursa N paket yeniden gönderilir.</li>
-                <li><span class="dict-term" data-term="SR">SR<span class="tooltip">${dictionary["SR"]}</span></span>: Gönderici ve Alıcı penceresi N. Bireysel ACK'ler. Sadece kayıp paketi yeniden gönderir. Pencere boyutu sıra numarası uzayının yarısından küçük veya eşit olmalıdır.</li>
-            </ul>
-            <div class="mermaid">
-            graph LR
-                A[Dur ve Bekle] -->|Düşük Kullanım| B[Boru Hattı]
-                B --> C[GBN: Birikimli ACK]
-                B --> D[SR: Bireysel ACK]
-            </div>
+                        <div class="exam-box">
+                            <p class="font-bold mb-1">⚠️ SINAV ODAĞI</p>
+                            <p class="text-sm">GBN vs SR karşılaştırması: Pencere boyutları, ACK türleri, kayıp durumunda yapılan işlem. GBN'de bir paket kaybedilirse N paket yeniden gönderilir. SR'de sadece kayıp olan gönderilir. SR'de pencere boyutu ≤ 2^n / 2 olmalı.</p>
+                        </div>
 
-            <h2 class="text-2xl font-bold mb-4">3.4 TCP</h2>
-            <div class="bg-red-900/50 border border-red-500 text-red-100 p-3 rounded my-2"><strong>⚠️ KLASİK SINAV ODAĞI:</strong> TCP 3 yönlü el sıkışması ve Tıkanıklık Kontrolü (AIMD). Bağlantı yönetimi için durum diyagramını anlayın. Yavaş Başlatma, Tıkanıklıktan Kaçınma ve Hızlı Kurtarma'yı açıklayın.</div>
-            <ul class="list-disc pl-6 mb-6 space-y-2">
-                <li><strong>Sıra Numaraları:</strong> Bayt akışındaki baytları sayar, segmentleri değil.</li>
-                <li><strong>Birikimli ACK'ler:</strong> X için ACK, "X-1'e kadar tüm baytları aldım" anlamına gelir.</li>
-                <li><strong>RTT Tahmini:</strong> EstimatedRTT = (1-a)*EstimatedRTT + a*SampleRTT. Timeout = EstimatedRTT + 4*DevRTT.</li>
-                <li><strong>3 Yönlü El Sıkışması:</strong> SYN -> SYNACK -> ACK.</li>
-                <li><strong>Akış Kontrolü:</strong> Alıcı, tampon taşmasını önlemek için rwnd (alma penceresi) ile göndericiyi kontrol eder.</li>
-            </ul>
-            <div class="mermaid">
-            sequenceDiagram
-                participant C as İstemci
-                participant S as Sunucu
-                Note over C,S: Bağlantı Kurulumu
-                C->>S: SYN (Seq=x)
-                S->>C: SYNACK (Seq=y, ACK=x+1)
-                C->>S: ACK (ACK=y+1)
-            </div>
+                        <h3 class="text-xl font-bold mb-3 text-white">rdt Evrimi</h3>
+                        <ul class="list-disc pl-6 mb-4 space-y-2">
+                            <li><strong>rdt 1.0:</strong> Tamamen güvenilir kanal. Hata yok, kayıp yok. Basitçe veriyi gönder.</li>
+                            <li><strong>rdt 2.0:</strong> Bit hatalı kanal. ACK (tamam) ve HATA (NAK) kullanır. <em>Sorun:</em> ACK/NAK kendisi bozulabilir → ölümcül kusur.</li>
+                            <li><strong>rdt 2.1:</strong> Sıra numaraları (0 ve 1) eklenir. Yinelenen paketleri tanımak için.</li>
+                            <li><strong>rdt 3.0:</strong> Kayıp paketler için <em>zaman aşımı</em> (timeout) eklenir. Stop-and-wait (dur-bekle) çalışır.</li>
+                        </ul>
 
-            <h2 class="text-2xl font-bold mb-4">3.5 TCP Tıkanıklık Kontrolü</h2>
-            <ul class="list-disc pl-6 mb-6 space-y-2">
-                <li><span class="dict-term" data-term="AIMD">AIMD<span class="tooltip">${dictionary["AIMD"]}</span></span>: Toplamalı Artış (RTT başına 1 MSS), Çarpımsal Azalış (cwnd'yi yarıya indir).</li>
-                <li><span class="dict-term" data-term="cwnd">cwnd<span class="tooltip">${dictionary["cwnd"]}</span></span>: Gönderici oranını sınırlar. LastByteSent - LastByteAcked <= cwnd.</li>
-                <li><strong>Yavaş Başlatma (Slow Start):</strong> Kayıp veya ssthresh olana kadar üssel büyüme (1, 2, 4, 8).</li>
-                <li><strong>Hızlı Yeniden İletim (Fast Retransmit):</strong> 3 yinelenmiş ACK, zaman aşımından önce yeniden iletimi tetikler.</li>
-                <li><strong>Hızlı Kurtarma (Fast Recovery):</strong> 3 yinelenmiş ACK'dan sonra cwnd'yi yarıya indir, sonra doğrusal artır (yavaş başlatmadan kaçın).</li>
-            </ul>
-        `
+                        <div class="content-box bg-gray-900 border border-blue-500">
+                            <p class="text-center text-sm font-mono text-blue-200">Kullanım Oranı = (L/R) / (RTT + L/R)</p>
+                            <p class="text-center text-xs text-gray-400 mt-1">Stop-and-wait çok verimsiz: L/R boyunca kanal boş durur</p>
+                        </div>
+
+                        <h3 class="text-xl font-bold mb-3 mt-4 text-white">Boru Hattı (Pipelining)</h3>
+                        <p class="mb-4">Stop-and-wait'in verimsizliğini çözmek için <strong>beklemeden birden fazla paket</strong> gönderilir. Bu iki ana protokole yol açar:</p>
+
+                        <h4 class="text-lg font-semibold mb-2 text-blue-300">Go-Back-N (GBN)</h4>
+                        <p class="mb-3">Gönderici penceresi N boyutunda. Alıcı <strong>sadece en son doğru alınan paket için birikimli ACK</strong> gönderir. Sıra dışı gelen paketler <strong>atılır</strong>. Bir paket kaybedilirse, o ve sonraki <strong>tüm N paket yeniden gönderilir</strong>.</p>
+
+                        <h4 class="text-lg font-semibold mb-2 text-blue-300">Selective Repeat (SR)</h4>
+                        <p class="mb-3">Her paket <strong>ayrı ayrı onaylanır</strong>. Sadece <strong>kayıp olan paket(ler)</strong> yeniden gönderilir. Daha verimlidir ama <strong>alıcı tarafında tamponlama</strong> gerektirir. Kritik kural: Pencere boyutu ≤ 2^(sıra numarası bit sayısı) / 2.</p>
+                        <div class="mermaid">
+                        graph LR
+                            A[Stop-and-Wait] -->|Düşük Kullanım| B[Boru Hattı]
+                            B --> C[GBN - Birikimli ACK]
+                            B --> D[SR - Bireysel ACK]
+                            C -->|Yeniden: N paket| E[Tek Kayıp]
+                            D -->|Yeniden: 1 paket| F[Tek Kayıp]
+                        </div>
+                    `
+                    },
+                    {
+                        id: "3.5", title: "3.5 Bağlantı Yönelimli Taşıyıcı: TCP",
+                        content: `
+                        <div class="content-box">
+                            <p class="text-blue-300 font-semibold mb-2">📌 Bu konuda ne öğreneceksin?</p>
+                            <p class="text-sm text-gray-300">TCP'nin segmentsal yapısını, sıra numaralarını, RTT tahminini, güvenilir veri aktarımını, akış kontrolünü ve bağlantı yönetimini öğreneceksin.</p>
+                        </div>
+
+                        <div class="exam-box">
+                            <p class="font-bold mb-1">⚠️ SINAV ODAĞI</p>
+                            <p class="text-sm">TCP 3 yönlü el sıkışmasını çiz. RTT tahmin formülünü bil: EstimatedRTT = (1-a)*EstimatedRTT + a*SampleRTT. Akış kontrolü ile tıkanıklık kontrolünün farkını açıkla: Akış kontrolü alıcı bazlı (rwnd), tıkanıklık kontrolü ağ bazlı (cwnd).</p>
+                        </div>
+
+                        <h3 class="text-xl font-bold mb-3 text-white">TCP Segment Yapısı</h3>
+                        <ul class="list-disc pl-6 mb-4 space-y-1">
+                            <li><strong>Sıra Numarası (Seq):</strong> Bayt akışındaki konu. 32 bit. Segment içindeki <em>ilk baytın</em> numarası.</li>
+                            <li><strong>Onay Numarası (ACK):</strong> "Bu numaraya kadar olan her şeyi aldım."</li>
+                            <li><strong>Başlık Uzunluğu:</strong> Başlığın boyutu (4 byte'lık kelimeler).</li>
+                            <li><strong>Pencere Boyutu:</strong> Akış kontrolü için alıcının mevcut pencere boyutu.</li>
+                            <li><strong>SYN, ACK, FIN bayrakları:</strong> Bağlantı kurulumu ve sonlandırma.</li>
+                        </ul>
+
+                        <h3 class="text-xl font-bold mb-3 text-white">RTT Tahmini</h3>
+                        <p class="mb-3">TCP, zaman aşımı süresini belirlemek için <strong>üstel hareketli ortalama</strong> kullanır:</p>
+                        <div class="content-box bg-gray-900 border border-blue-500">
+                            <p class="text-center text-sm font-mono text-blue-200">EstimatedRTT = (1-a) × EstimatedRTT + a × SampleRTT</p>
+                            <p class="text-center text-xs text-gray-400 mt-1">a = 0.125 (genellikle). Yeni ölçüme %12.5 ağırlık verilir.</p>
+                            <p class="text-center text-sm font-mono text-blue-200 mt-2">TimeoutInterval = EstimatedRTT + 4 × DevRTT</p>
+                        </div>
+
+                        <h3 class="text-xl font-bold mb-3 mt-4 text-white">3 Yönlü El Sıkışma (Connection Setup)</h3>
+                        <div class="mermaid">
+                        sequenceDiagram
+                            participant C as İstemci
+                            participant S as Sunucu
+                            Note over C,S: Bağlantı Kurulumu
+                            C->>S: SYN (Seq=x)
+                            Note right of C: Ben bağlanmak istiyorum
+                            S->>C: SYNACK (Seq=y, ACK=x+1)
+                            Note left of S: Tamam, ben de hazırım
+                            C->>S: ACK (ACK=y+1)
+                            Note right of C: Anlaştık, başlayalım!
+                        </div>
+
+                        <h3 class="text-xl font-bold mb-3 text-white">Akış Kontrolü vs Tıkanıklık Kontrolü</h3>
+                        <div class="overflow-x-auto">
+                        <table class="w-full text-sm mb-4 border border-gray-700">
+                            <tr class="bg-gray-700"><th class="p-2 text-left">Özellik</th><th class="p-2 text-left">Akış Kontrolü</th><th class="p-2 text-left">Tıkanıklık Kontrolü</th></tr>
+                            <tr class="border-t border-gray-700"><td class="p-2">Amaç</td><td class="p-2">Alıcıyı aşırı yüklemekten koru</td><td class="p-2">Ağdaki tıkanıklığı önle</td></tr>
+                            <tr class="border-t border-gray-700"><td class="p-2">Pencere</td><td class="p-2">rwnd (alıcı belirler)</td><td class="p-2">cwnd (gönderici belirler)</td></tr>
+                            <tr class="border-t border-gray-700"><td class="p-2">Kaynak</td><td class="p-2">Alıcı tampon boyutu</td><td class="p-2">Ağ durumu (kayıp, gecikme)</td></tr>
+                        </table>
+                        </div>
+                    `
+                    },
+                    {
+                        id: "3.6", title: "3.6 Tıkanıklık Kontrolü İlkeleri",
+                        content: `
+                        <div class="content-box">
+                            <p class="text-blue-300 font-semibold mb-2">📌 Bu konuda ne öğreneceksin?</p>
+                            <p class="text-sm text-gray-300">Tıkanıklığın nedenlerini, maliyetlerini ve tıkanıklık kontrolü için kullanılan genel yaklaşımları öğreneceksin.</p>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3 text-white">Tıkanıklık Nedenleri</h3>
+                        <p class="mb-4 leading-relaxed">Ağdaki yönlendiricilerin kuyrukları dolduğunda paketler <strong>düşürülür</strong>. Bu发送icinin zaman aşımı yaşamasına ve yeniden gönderim yapmasına neden olur. Yeniden gönderimler daha fazla trafik, daha fazla tıkanıklık, daha fazla kayıp yaratır – bir <strong>kötü döngü</strong>.</p>
+                        <h3 class="text-xl font-bold mb-3 text-white">Tıkanıklık Kontrolü Yaklaşımları</h3>
+                        <ul class="list-disc pl-6 mb-4 space-y-2">
+                            <li><strong>Genel Yaklaşım (End-to-End):</strong> Ağ altyapısı yardımı olmadan, gönderici ve alıcı ağ durumunu <em>kestirerek</em> hızını ayarlar. TCP'nin kullandığı budur.</li>
+                            <li><strong>Katmanlı Yaklaşım:</strong> Yönlendiriciler aktif olarak göndericilere sinyal gönderir. (Çok yaygın değil, daha çok araştırma düzeyinde).</li>
+                        </ul>
+                    `
+                    },
+                    {
+                        id: "3.7", title: "3.7 TCP Tıkanıklık Kontrolü",
+                        content: `
+                        <div class="content-box">
+                            <p class="text-blue-300 font-semibold mb-2">📌 Bu konuda ne öğreneceksin?</p>
+                            <p class="text-sm text-gray-300">TCP'nin tıkanıklık kontrolü algoritmasını (AIMD, yavaş başlatma, hızlı yeniden iletim, hızlı kurtarma) ve cwnd değişimini adım adım öğreneceksin.</p>
+                        </div>
+
+                        <div class="exam-box">
+                            <p class="font-bold mb-1">⚠️ SINAV ODAĞI</p>
+                            <p class="text-sm">Yavaş başlatmada cwnd nasıl büyür? (1→2→4→8). ssthresh değerine ulaşıldığında ne olur? 3 yinelenmiş ACK alındığında hızlı kurtarma nasıl çalışır? Zaman aşımı durumunda ssthresh = cwnd/2 ve cwnd=1 MSS olur.</p>
+                        </div>
+
+                        <h3 class="text-xl font-bold mb-3 text-white">AIMD (Toplamalı Artış Çarpımsal Azalış)</h3>
+                        <ul class="list-disc pl-6 mb-4 space-y-2">
+                            <li><strong>Toplamalı Artış:</strong> Kayıp olmadığı sürece cwnd her RTT'de 1 MSS artar (1, 2, 3, 4...).</li>
+                            <li><strong>Çarpımsal Azalış:</strong> Kayıp algılandığında cwnd yarıya indirilir (8 → 4).</li>
+                        </ul>
+
+                        <h3 class="text-xl font-bold mb-3 text-white">Yavaş Başlatma (Slow Start)</h3>
+                        <p class="mb-3">cwnd başlangıçta <strong>1 MSS</strong> olarak başlar ve her RTT'de <strong>iki katına</strong> büyür (1 → 2 → 4 → 8 → 16...). Üssel büyüme çok hızlıdır. ssthresh değerine (başlangıçta genellikle 65 MSS) ulaştığında <strong>doğrusal büyümeye</strong> geçilir.</p>
+
+                        <h3 class="text-xl font-bold mb-3 text-white">Hızlı Yeniden İletim ve Kurtarma</h3>
+                        <ul class="list-disc pl-6 mb-4 space-y-2">
+                            <li><strong>Hızlı Yeniden İletim:</strong> 3 tane <em>yinelenen ACK</em> alındığında zaman aşımı beklemeden hemen yeniden iletim yapılır.</li>
+                            <li><strong>Hızlı Kurtarma:</strong> 3 yinelenen ACK sonrası cwnd yarıya indirilir (ssthresh = cwnd/2), ardından doğrusal artışa geçilir. Yavaş başlatma <strong>atlanır</strong>.</li>
+                            <li><strong>Zaman Aşımı:</strong> cwnd = 1 MSS'ye düşer, ssthresh = cwnd/2 yapılır ve yavaş başlatma baştan başlar.</li>
+                        </ul>
+                        <div class="mermaid">
+                        graph TD
+                            A[Başlangıç: cwnd=1] -->|Üssel Büyüme| B[Yavaş Başlatma]
+                            B -->|cwnd >= ssthresh| C[Doğrusal Artış]
+                            B -->|Zaman Aşımı| D[cwnd=1, Yavaş Başlatmaya Dön]
+                            C -->|3 Yinelenen ACK| E[Hızlı Kurtarma: cwnd/2]
+                            E --> C
+                            C -->|Zaman Aşımı| D
+                        </div>
+                    `
+                    }
+                ],
+                quiz: [
+                    { q: "TCP 3 yönlü el sıkışmasında ilk aşama hangisidir?", options: ["ACK", "SYN", "FIN", "SYNACK"], answer: 1 },
+                    { q: "Gönderici beklemeden N paket gönderdiğinde buna ne denir?", options: ["Stop-and-wait", "Pipelining", "Multiplexing", "Encapsulation"], answer: 1 },
+                    { q: "TCP'de 3 yinelenen ACK ne tetikler?", options: ["Bağlantıyı kapatır", "Zaman aşımı", "Hızlı yeniden iletim", "Yavaş başlatma"], answer: 2 },
+                    { q: "SR protokolünde pencere boyutu neden ≤ 2^n/2 olmalıdır?", options: ["Hız için", "Bellek kısıtlaması", "Yinelenen numara karışıklığını önlemek için", "Güvenlik için"], answer: 2 },
+                    { q: "Tıkanıklık kontrolünde AIMD'de kayıp sonrası cwnd ne olur?", options: ["Sıfırlanır", "İkiye bölünür", "İki katına çıkar", "1 MSS'ye düşer"], answer: 1 }
+                ]
             },
             "ch4": {
-                title: "Bölüm 4: Ağ Katmanı: Veri Düzlemi",
-                content: `
-            <h2 class="text-2xl font-bold mb-4">4.1 Genel Bakış ve Yönlendirici Mimarisi</h2>
-            <ul class="list-disc pl-6 mb-6 space-y-2">
-                <li><strong>İşlevler:</strong> Yönlendirme/İletme (Forwarding - Veri Düzlemi, yerel) vs Rotlama (Routing - Kontrol Düzlemi, küresel).</li>
-                <li><strong>Yönlendirici Mimarisi:</strong> Giriş portları -> Anahtarlama Dokusu -> Çıkış portları.</li>
-                <li><strong>Anahtarlama Dokuları:</strong> Bellek, Veriyolu, Birbirine Bağlı Ağ (Crossbar).</li>
-                <li><strong>HOL Engelleme:</strong> Anahtarlama dokusu meşgul olduğunda giriş kuyruğundaki kafa (Head-of-Line) engelleme durumu.</li>
-            </ul>
+                title: "Bölüm 4: Ağ Katmanı - Veri Düzlemi",
+                sections: [
+                    {
+                        id: "4.1", title: "4.1 Ağ Katmanı Genel Bakış",
+                        content: `
+                        <div class="content-box">
+                            <p class="text-blue-300 font-semibold mb-2">📌 Bu konuda ne öğreneceksin?</p>
+                            <p class="text-sm text-gray-300">Veri düzlemi ile kontrol düzlemini, ağ katmanının sunduğu hizmet modellerini ve yönlendirme ile iletme arasındaki farkı öğreneceksin.</p>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3 text-white">Veri Düzlemi vs Kontrol Düzlemi</h3>
+                        <ul class="list-disc pl-6 mb-4 space-y-2">
+                            <li><strong>Veri Düzlemi (Data Plane):</strong> <em>Yerel</em> işlem. Yönlendiricide bir paket geldiğinde, <strong>hangi çıkış portuna</strong> gönderileceğini belirler. Her yönlendiricide bağımsız çalışır.</li>
+                            <li><strong>Kontrol Düzlemi (Control Plane):</strong> <em>Küresel</em> işlem. Kaynaktan hedefe <strong>hangi yolun izleneceğini</strong> belirler. Yönlendirme protokolleri (OSPF, BGP) bu düzlemde çalışır.</li>
+                        </ul>
+                        <div class="content-box">
+                            <p class="text-yellow-300 font-semibold mb-2">🔑 Basit Benzetme</p>
+                            <p class="text-sm">Veri düzlemi = GPS'in sana "şimdi sağa dön" demesi (yerel, anlık karar). Kontrol düzlemi = GPS'in baştan rotayı hesaplaması (küresel planlama).</p>
+                        </div>
+                    `
+                    },
+                    {
+                        id: "4.2", title: "4.2 Yönlendiricinin İçinde Neler Var?",
+                        content: `
+                        <div class="content-box">
+                            <p class="text-blue-300 font-semibold mb-2">📌 Bu konuda ne öğreneceksin?</p>
+                            <p class="text-sm text-gray-300">Yönlendiricinin iç yapısını, giriş/çıkış portlarını, anahtarlama dokularını ve kuyruk yönetimini öğreneceksin.</p>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3 text-white">Yönlendirici Mimarisi</h3>
+                        <p class="mb-4">Gelen paketler <strong>giriş portlarından</strong> girer, <strong>anahtarlama dokusu (switching fabric)</strong> aracılığıyla <strong>çıkış portlarına</strong> iletilir.</p>
+                        <ul class="list-disc pl-6 mb-4 space-y-2">
+                            <li><strong>Giriş Portları:</strong> Fiziksel bağlantı, veri bağlantısı katmanı işlemleri (çerçeve çözme), en uzun ön ek eşleştirmesi (forwarding table lookup).</li>
+                            <li><strong>Anahtarlama Dokusu:</strong> Paketi girişten çıkışa taşıyan mekanizma. Üç tür:
+                                <ul class="list-disc pl-6 mt-1">
+                                    <li><em>Bellek Tabanlı:</em> Yönlendirici belleği (yavaş, küçük yönlendiriciler için).</li>
+                                    <li><em>Veriyolu Tabanlı:</em> Donanım veriyolları (hızlı, pahalı).</li>
+                                    <li><em>Birbirine Bağlı Ağ (Crossbar):</em> Eşzamanlı iletim (en hızlı).</li>
+                                </ul>
+                            </li>
+                            <li><strong>Çıkış Portları:</strong> Kuyruk (buffer) yönetimi, kuyruk doluysa paket düşürme, kuyruk_planlama.</li>
+                        </ul>
+                        <h3 class="text-xl font-bold mb-3 text-white">HOL (Head-of-Line) Engelleme</h3>
+                        <p class="mb-4">Giriş kuyruğunun önündeki paket, hedef çıkış meşgul olduğunda <strong>tüm kuyruğu</strong> engeller. Arkadaki paketler farklı çıkışa gidebilecek olsa bile beklemek zorundadır.</p>
+                    `
+                    },
+                    {
+                        id: "4.3", title: "4.3 IP: İnternet Protokolü",
+                        content: `
+                        <div class="content-box">
+                            <p class="text-blue-300 font-semibold mb-2">📌 Bu konuda ne öğreneceksin?</p>
+                            <p class="text-sm text-gray-300">IP verigramının yapısını, IPv4 adreslemeyi, subnetting'i, DHCP, NAT ve IPv6'yı kapsamlı şekilde öğreneceksin.</p>
+                        </div>
 
-            <h2 class="text-2xl font-bold mb-4">4.2 IP Adresleme</h2>
-            <div class="bg-red-900/50 border border-red-500 text-red-100 p-3 rounded my-2"><strong>⚠️ KLASİK SINAV ODAĞI:</strong> Alt ağlama (Subnetting) ve CIDR. Ağ/yayın adreslerini, geçerli ana bilgisayar aralıklarını hesaplayın ve en uzun ön ek eşleştirmesini (longest prefix match) yapın. <span class="dict-term" data-term="NAT">NAT<span class="tooltip">${dictionary["NAT"]}</span></span>'ın adresleri nasıl çevirdiğini anlamak çok önemlidir.</div>
-            <ul class="list-disc pl-6 mb-6 space-y-2">
-                <li><strong>Alt Ağlar (Subnets):</strong> IP'nin ağ kısmı aynı olan arayüzler. Araya yönlendirici girmeden birbirlerine ulaşabilirler.</li>
-                <li><span class="dict-term" data-term="CIDR">CIDR<span class="tooltip">${dictionary["CIDR"]}</span></span>: Genelleştirilmiş alt ağlama a.b.c.d/x.</li>
-                <li><span class="dict-term" data-term="DHCP">DHCP<span class="tooltip">${dictionary["DHCP"]}</span></span>: Keşfet, Teklif Et, İstek, Onayla (DORA). Tak ve çalıştır.</li>
-                <li><strong>NAT:</strong> (Kaynak IP, Port)'u (NAT IP, Yeni Port) ile değiştirir. IPv4 kıtlığına ve güvenliğe yardımcı olur. Uçtan uca ilkeyi ihlal eder.</li>
-                <li><strong>IPv6:</strong> 128 bit adresler. Sağlama toplamı yok (daha hızlı işleme), yönlendiricilerde parçalama yok (MTU keşfi).</li>
-            </ul>
-            <div class="mermaid">
-            graph TD
-                A[IPv4 32-bit] -->|Kıtlık| B[NAT]
-                A -->|Uzun Vadeli Çözüm| C[IPv6 128-bit]
-                D[IPv4 Başlığı] -->|Basitleştirme| E[IPv6 Başlığı]
-                E --> F[Sağlama Toplamı Yok]
-                E --> G[Parçalama Alanları Yok]
-            </div>
+                        <div class="exam-box">
+                            <p class="font-bold mb-1">⚠️ SINAV ODAĞI</p>
+                            <p class="text-sm">Alt ağ hesaplamaları: Ağ/yayın adreslerini bul, geçerli ana bilgisayar aralıklarını hesapla. NAT tablosunun nasıl çalıştığını bil. En uzun ön ek eşleştirmeyi (longest prefix match) uygula.</p>
+                        </div>
 
-            <h2 class="text-2xl font-bold mb-4">4.3 Genelleştirilmiş İletme (SDN)</h2>
-            <ul class="list-disc pl-6 mb-6 space-y-2">
-                <li><strong>Eşleştir ve Eyleme Geç (Match+Action):</strong> Herhangi bir başlık alanını eşleştir, eyleme geç (düşür, ilet, değiştir, denetleyiciye gönder).</li>
-                <li><strong>OpenFlow:</strong> SDN için API. Yönlendiricileri, anahtarları, güvenlik duvarlarını, NAT'ı tek bir eşleştir+eylem soyutlamasında birleştirir.</li>
-            </ul>
-        `
+                        <h3 class="text-xl font-bold mb-3 text-white">IPv4 Verigramı</h3>
+                        <p class="mb-3">IPv4 başlığı <strong>20 byte</strong> (minimum) olup en önemli alanlar:</p>
+                        <ul class="list-disc pl-6 mb-4 space-y-1">
+                            <li><strong>Versiyon (4 bit):</strong> 4 (IPv4) veya 6 (IPv6).</li>
+                            <li><strong>Başlık Uzunluğu (4 bit):</strong> Başlığın byte cinsinden boyutu.</li>
+                            <li><strong>Toplam Uzunluk (16 bit):</strong> Toplam paket boyutu (başlık + veri). Maksimum 65.535 byte.</li>
+                            <li><strong>Yaşam Süresi - TTL (8 bit):</strong> Paket kaç yönlendiriciden geçebilir. Her atlama 1 azalır, 0 olursa paket düşürülür.</li>
+                            <li><strong>Protokol (8 bit):</strong> Üst katman protokolü (6=TCP, 17=UDP).</li>
+                            <li><strong>Kaynak/Hedef IP (32'er bit):</strong> Gönderen ve alıcı adresleri.</li>
+                        </ul>
+
+                        <h3 class="text-xl font-bold mb-3 text-white">Alt Ağlar (Subnetting)</h3>
+                        <p class="mb-4">IP adresinin <strong>sol tarafı ağ</strong>, <strong>sağ tarafı ana bilgisayar</strong> (host)部分ını temsil eder. Ağ maskesi (subnet mask) bu ayrımı belirler.</p>
+                        <div class="content-box bg-gray-900 border border-blue-500">
+                            <p class="text-sm text-center text-blue-200 font-mono">Örnek: 192.168.1.0/24</p>
+                            <p class="text-xs text-gray-400 mt-1 text-center">/24 = İlk 24 bit ağ部分ı. Ağ: 192.168.1.0. Kullanılabilir: 192.168.1.1 - 192.168.1.254 (254 ana bilgisayar)</p>
+                        </div>
+                        <div class="content-box mt-2">
+                            <p class="text-yellow-300 font-semibold mb-2">🔑 Hesaplama Formülü</p>
+                            <p class="text-sm">/x maskesi ile: Kullanılabilir ana bilgisayar sayısı = 2^(32-x) - 2<br>
+                            /24 → 2^8 - 2 = 254 ana bilgisayar<br>
+                            /28 → 2^4 - 2 = 14 ana bilgisayar<br>
+                            -2是因为：Bir adres ağ, diğeri broadcast adresidir.</p>
+                        </div>
+
+                        <h3 class="text-xl font-bold mb-3 mt-4 text-white">DHCP (Dinamik IP Atama)</h3>
+                        <p class="mb-4">Yeni bir cihaz ağa bağlandığında otomatik olarak IP adresi alır. Süreç "<strong>DORA</strong>" olarak bilinir:</p>
+                        <ol class="list-decimal pl-6 mb-4 space-y-1">
+                            <li><strong>Keşfet (Discover):</strong> Cihaz broadcast olarak "Bana IP ver!" der.</li>
+                            <li><strong>Teklif (Offer):</strong> DHCP sunucusu bir IP teklif eder.</li>
+                            <li><strong>İstek (Request):</strong> Cihaz teklifi kabul eder.</li>
+                            <li><strong>Onay (Acknowledge):</strong> Sunucu atamayı onaylar.</li>
+                        </ol>
+
+                        <h3 class="text-xl font-bold mb-3 text-white">NAT (Ağ Adres Çevirisi)</h3>
+                        <p class="mb-4">Evdeki tüm cihazlar (192.168.x.x özel adresleri) <strong>tek bir genel IP</strong> üzerinden internete çıkar. NAT yönlendiricisi (Kaynak IP:Port) çiftini (NAT IP:Yeni Port) ile değiştirir. Böylece binlerce cihaz tek IP ile interneti kullanabilir.</p>
+
+                        <h3 class="text-xl font-bold mb-3 text-white">IPv6</h3>
+                        <ul class="list-disc pl-6 mb-4 space-y-2">
+                            <li><strong>128 bit adres:</strong> 3.4 × 10^38 adres – yeterli.</li>
+                            <li><strong>Sağlama tolamı yok:</strong> Daha hızlı işleme (hata kontrolü üst katmanlara).</li>
+                            <li><strong>Parçalama yok:</strong> Yönlendiricilerde fragmentation yok (MTU keşfi göndericide).</li>
+                            <li><strong>Broadcast yok:</strong> Yerine Multicast ve Anycast.</li>
+                        </ul>
+                    `
+                    },
+                    {
+                        id: "4.4", title: "4.4 Genelleştirilmiş İletme (SDN)",
+                        content: `
+                        <div class="content-box">
+                            <p class="text-blue-300 font-semibold mb-2">📌 Bu konuda ne öğreneceksin?</p>
+                            <p class="text-sm text-gray-300">Eşleştir ve Eyleme Geç (Match+Action) paradigmasını, OpenFlow protokolünü ve orta kutuları (middleboxes) öğreneceksin.</p>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3 text-white">Match+Action</h3>
+                        <p class="mb-4">Geleneksel yönlendiricide sadece IP adresine bakılır. <strong>Genelleştirilmiş iletimde</strong> herhangi bir başlık alanına (kaynak IP, hedef port, VLAN ID vb.) eşleştirip farklı eylemler uygulanabilir:</p>
+                        <ul class="list-disc pl-6 mb-4 space-y-1">
+                            <li>Paketi belirli bir çıkış portuna ilet</li>
+                            <li>Paketi düşür</li>
+                            <li>Paketin başlığını değiştir</li>
+                            <li>Paketi kontrolcüye gönder</li>
+                        </ul>
+                        <h3 class="text-xl font-bold mb-3 text-white">OpenFlow</h3>
+                        <p class="mb-4">SDN (Yazılım Tanımlı Ağ) için geliştirilen açık protokol. Yönlendirici/anahtar ile merkezi kontrolcü arasındaki iletişimi sağlar. Tek bir soyutlama ile yönlendirme, anahtarlama, güvenlik duvarı ve NAT işlemlerini birleştirir.</p>
+                        <h3 class="text-xl font-bold mb-3 text-white">Orta Kutular (Middleboxes)</h3>
+                        <p class="mb-4">Yönlendirici ve anahtar dışında, ağ yolundaki <strong>güvenlik duvarı, NAT, dengeleyici (load balancer)</strong> gibi cihazlar. Ağ işlevselliğini artırır ama yönetim karmaşıklığı yaratır.</p>
+                    `
+                    }
+                ],
+                quiz: [
+                    { q: "Veri düzlemi ve kontrol düzlemi arasındaki fark nedir?", options: ["Veri düzlemi şifreleme yapar", "Veri düzlemi yerel yönlendirme, kontrol düzlemi küresel rotalama", "Kontrol düzlemi paket gönderir", "Fark yoktur"], answer: 1 },
+                    { q: "DHCP sürecinin aşamaları sırasıyla nedir?", options: ["SYN, ACK, FIN", "DORA", "ARP, RARP", "DNS, SMTP"], answer: 1 },
+                    { q: "/26 maskesi ile kaç kullanılabilir ana bilgisayar adresi vardır?", options: ["62", "64", "126", "128"], answer: 0 },
+                    { q: "NAT'ın temel amacı nedir birdir?", options: ["Paketleri şifrelemek", "Birden fazla cihazı tek IP ile internete çıkarmak", "DNS sorgularını hızlandırmak", "Tıkanıklık kontrolü yapmak"], answer: 1 },
+                    { q: "IPv6'nın IPv4'ten en büyük avantajı nedir?", options: ["Daha yavaş olması", "Daha büyük adres uzayı", "Daha fazla başlık alanı", "NAT kullanımı"], answer: 1 }
+                ]
+            },
+            "ch5": {
+                title: "Bölüm 5: Ağ Katmanı - Kontrol Düzlemi",
+                sections: [
+                    {
+                        id: "5.1", title: "5.1 Genel Bakış: Yönlendirme vs Rotlama",
+                        content: `
+                        <div class="content-box">
+                            <p class="text-blue-300 font-semibold mb-2">📌 Bu konuda ne öğreneceksin?</p>
+                            <p class="text-sm text-gray-300">Yönlendirme (forwarding) ile rotlamanın (routing) farkını, rotlamanın nasıl çalıştığını ve protokolleri öğreneceksin.</p>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3 text-white">Farklar</h3>
+                        <ul class="list-disc pl-6 mb-4 space-y-2">
+                            <li><strong>Yönlendirme (Forwarding):</strong> Tek bir yönlendiricide <em>yerel</em> eylem. Paketi hangi çıkış portuna göndereceğini belirler. Veri düzlemi.</li>
+                            <li><strong>Rotlama (Routing):</strong> Kaynaktan hedefe <em>küresel</em> yolun hesaplanması. Tüm yönlendiricilerin birlikte karar verdiği süreç. Kontrol düzlemi.</li>
+                        </ul>
+                        <p class="mb-4">İki ana rotlama yaklaşımı:</p>
+                        <ul class="list-disc pl-6 mb-4 space-y-2">
+                            <li><strong>Durum Algoritmaları (Link State):</strong> Her yönlendirici tüm ağ haritasını bilir ve <strong>Dijkstra</strong> ile en kısa yolu hesaplar. (OSPF)</li>
+                            <li><strong>Vektör Algoritmaları (Distance Vector):</strong> Her yönlendirici sadece <strong>komşularından</strong> bilgi alır ve Bellman-Ford kullanarak tablosunu günceller. (RIP)</li>
+                        </ul>
+                    `
+                    },
+                    {
+                        id: "5.2", title: "5.2 Rotlama Algoritmaları",
+                        content: `
+                        <div class="content-box">
+                            <p class="text-blue-300 font-semibold mb-2">📌 Bu konuda ne öğreneceksin?</p>
+                            <p class="text-sm text-gray-300">Link State (Dijkstra) ve Distance Vector (Bellman-Ford) rotlama algoritmalarının nasıl çalıştığını, avantaj/dezavantajlarını öğreneceksin.</p>
+                        </div>
+
+                        <div class="exam-box">
+                            <p class="font-bold mb-1">⚠️ SINAV ODAĞI</p>
+                            <p class="text-sm">Dijkstra algoritmasını elle çalıştır. Sayısal problème (count-to-infinity) nedir ve nasıl çözülür? Poisoned reverse ne yapar?</p>
+                        </div>
+
+                        <h3 class="text-xl font-bold mb-3 text-white">Link State: Dijkstra Algoritması</h3>
+                        <p class="mb-3">Her yönlendirici <strong>tüm ağı harita olarak</strong> bilir (link-state reklamları ile). Dijkstra ile kaynaktan tüm hedeflere <strong>en kısa yolu</strong> hesaplar.</p>
+                        <div class="content-box bg-gray-900 border border-blue-500 font-mono text-sm">
+                            <p class="text-blue-200">Dijkstra Adımları:</p>
+                            <p class="text-gray-300">1. Başlangıç: Kendini 0, diğerlerini sonsuz olarak ayarla</p>
+                            <p class="text-gray-300">2. Ziyaret edilmemiş düğümler arasından en kısa mesafeli olanı seç</p>
+                            <p class="text-gray-300">3. Bu düğümün komşularını güncelle (yeni yol daha kısa mı?)</p>
+                            <p class="text-gray-300">4. Tüm düğümler ziyaret edilene kadar tekrarla</p>
+                        </div>
+                        <p class="text-sm text-gray-400 mt-1"><strong>Zaman karmaşıklığı:</strong> O(n²) – n = düğüm sayısı.</p>
+
+                        <h3 class="text-xl font-bold mb-3 mt-4 text-white">Distance Vector: Bellman-Ford</h3>
+                        <p class="mb-3">Her yönlendirici sadece <strong>komşularından</strong> mesafe bilgisi alır ve kendi tablosunu günceller. "Komşularıma güveniyorum, onlar da kendi komşularına güveniyor" mantığı.</p>
+                        <div class="content-box bg-gray-900 border border-blue-500 font-mono text-sm">
+                            <p class="text-blue-200">Bellman-Ford Denklemi:</p>
+                            <p class="text-gray-300">d_x(y) = min_v { c(x,v) + d_v(y) }</p>
+                            <p class="text-xs text-gray-500 mt-1">x'ten y'ye en kısa yol = tüm komşulardan (v) birinin yolunu kullanarak en kısa olan</p>
+                        </div>
+
+                        <h3 class="text-xl font-bold mb-3 mt-4 text-white">Sayısal Problemi (Count-to-Infinity)</h3>
+                        <p class="mb-3">Distance Vector'da bir yol kırıldığında yönlendiriciler <strong>yanlış bilgi</strong> yayabilir ve mesafeyi yanlış hesaplayabilir. "Sayısal problem" – yanlış mesafe sonsuza kadar artar.</p>
+                        <p class="mb-3"><strong>Çözüm: Poisoned Reverse.</strong> Eğer X, Y'ye giden yolu Z üzerinden geçiyorsa, X'e "Y'ye mesafem sonsuz" der. Böylece X asla Y'yi X üzerinden Y'ye yönlendirmeye çalışmaz.</p>
+
+                        <div class="mermaid">
+                        graph LR
+                            A[Link State - Dijkstra] -->|Tüm harita bilinir| B[Karmaşık ama doğru]
+                            C[Distance Vector - Bellman-Ford] -->|Sadece komşular| D[Basit ama hatalı olabilir]
+                        </div>
+                    `
+                    },
+                    {
+                        id: "5.3", title: "5.3 İç AS Yönlendirmesi: OSPF",
+                        content: `
+                        <div class="content-box">
+                            <p class="text-blue-300 font-semibold mb-2">📌 Bu konuda ne öğreneceksin?</p>
+                            <p class="text-sm text-gray-300">Otonom Sistem (AS) kavramını, OSPF protokolünün nasıl çalıştığını ve özelliklerini öğreneceksin.</p>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3 text-white">Otonom Sistem (AS)</h3>
+                        <p class="mb-4">Bir organizasyonun (üniversite, şirket, ISS) kontrolündeki yönlendiriciler grubu. Her AS kendi iç rotlamasını <strong>bağımsız</strong> yürütür. AS'ler arası iletişim BGP ile, AS içi iletişim OSPF veya RIP ile sağlanır.</p>
+                        <h3 class="text-xl font-bold mb-3 text-white">OSPF (Open Shortest Path First)</h3>
+                        <ul class="list-disc pl-6 mb-4 space-y-2">
+                            <li><strong>Link State</strong> tabanlıdır. Dijkstra kullanır.</li>
+                            <li>Her yönlendirici tüm AS içindeki haritayı bilir.</li>
+                            <li>Link durumu değişikliklerini <strong>reklam</strong> olarak broadcast/multicast eder.</li>
+                            <li>Hiyerarşik yapı destekler (area-based) – büyük ağlarda ölçeklenebilirlik sağlar.</li>
+                            <li>Otomatik olarak en kısa yolu hesaplar ve yüke göre dengeleme yapabilir.</li>
+                        </ul>
+                        <p class="mb-4"><strong>RIP (Routing Information Protocol):</strong> Eski, Distance Vector tabanlı. En fazla 15 atlama. Yavaş convergence. Büyük ağlarda kullanılmaz.</p>
+                    `
+                    },
+                    {
+                        id: "5.4", title: "5.4 AS'ler Arası Yönlendirme: BGP",
+                        content: `
+                        <div class="content-box">
+                            <p class="text-blue-300 font-semibold mb-2">📌 Bu konuda ne öğreneceksin?</p>
+                            <p class="text-sm text-gray-300">BGP protokolünün nasıl çalıştığını, eBGP ve iBGP farklarını ve politika tabanlı yönlendirmeyi öğreneceksin.</p>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3 text-white">BGP (Border Gateway Protocol)</h3>
+                        <p class="mb-4">İnternetin "küresel rotlama protokolü". AS'ler arasındaki trafiği yönlendirir. <strong>İnternetin sırt omurgasıdır.</strong> Teknik olarak değil, <strong>politika olarak</strong> yönlendirme yapar – yani ticari anlaşmalara göre.</p>
+                        <ul class="list-disc pl-6 mb-4 space-y-2">
+                            <li><strong>eBGP (External):</strong> Farklı AS'ler arasındaki iletişim.</li>
+                            <li><strong>iBGP (Internal):</strong> Aynı AS içindeki sınır yönlendiricileri arasındaki bilgi dağıtımı.</li>
+                            <li><strong>Politika Tabanlı:</strong> "Komşum bana şu yolları gösterdi, ben bunları başkalarına nasıl duyurayım?" Kararlar ticari/stratejik faktörlere göre verilir.</li>
+                        </ul>
+                        <div class="content-box">
+                            <p class="text-yellow-300 font-semibold mb-2">🔑 Gerçek Hayat Örneği</p>
+                            <p class="text-sm">2021'de Facebook'un BGP rotalarını yanlışlıkla silmesi tüm Facebook, Instagram ve WhatsApp'ın erişilemez olmasına neden oldu. BGP, internetin temel omurgasıdır – hatalı bir BGP yapılandırması milyonları etkiler.</p>
+                        </div>
+                    `
+                    },
+                    {
+                        id: "5.5", title: "5.5 Yazılım Tanımlı Ağ (SDN)",
+                        content: `
+                        <div class="content-box">
+                            <p class="text-blue-300 font-semibold mb-2">📌 Bu konuda ne öğreneceksin?</p>
+                            <p class="text-sm text-gray-300">SDN'nin kontrol düzlemini veri düzlemden ayırma fikrini, OpenFlow'u ve programlanabilir ağ yönetimini öğreneceksin.</p>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3 text-white">SDN Yaklaşımı</h3>
+                        <p class="mb-4">Geleneksel ağlarda her yönlendiricinin kendi "akıllı" kontrol düzlemi vardır. SDN'de bu zekâ <strong>merkezi bir kontrolcüye</strong> taşınır. Yönlendiriciler basit "iletim" cihazlarına dönüşür, kontrolcü tüm kararları verir.</p>
+                        <ul class="list-disc pl-6 mb-4 space-y-2">
+                            <li><strong>Avantajı:</strong> Ağ yönetimi programlanabilir (yazılım ile), merkezi karar alma, esneklik.</li>
+                            <li><strong>OpenFlow:</strong> Kontrolcü ile yönlendirici arasındaki iletişim protokolü.</li>
+                            <li><strong>Kullanım alanları:</strong> Bulut bilişim, veri merkezi ağları, araştırma/test ortamları.</li>
+                        </ul>
+                    `
+                    }
+                ],
+                quiz: [
+                    { q: "Link State rotlamasında hangi algoritma kullanılır?", options: ["Bellman-Ford", "Dijkstra", "Floyd-Warshall", "Kruskal"], answer: 1 },
+                    { q: "Sayısal problem (count-to-infinity) hangi rotlama yaklaşımında görülür?", options: ["Link State", "Distance Vector", "Her ikisinde", "Hiçbirinde"], answer: 1 },
+                    { q: "BGP'nin temel özelliği nedir?", options: ["En kısa yolu bulur", "Politika tabanlı yönlendirme yapar", "Link state kullanır", "Hızlı convergence sağlar"], answer: 1 },
+                    { q: "OSPF hangi tür rotlama protokolüdür?", options: ["Distance Vector", "Link State", "Path Vector", "Hybrid"], answer: 1 },
+                    { q: "SDN'de kontrol düzlemi nerededir?", options: ["Her yönlendiricide", "Merkezi kontrolcüde", "Alıcıda", "Göndericide"], answer: 1 }
+                ]
             },
             "ch6": {
                 title: "Bölüm 6: Bağlantı Katmanı ve LAN'lar",
-                content: `
-            <h2 class="text-2xl font-bold mb-4">6.1 Hata Algılama</h2>
-            <ul class="list-disc pl-6 mb-6 space-y-2">
-                <li><strong>Eşlik Denetimleri (Parity Checks):</strong> Tek bit (1 hata algılar), 2B eşlik (1 hata algılar ve düzeltir, 2 hata algılar).</li>
-                <li><strong>İnternet Sağlama Toplamı:</strong> 16 bitlik 1'e tümleyen toplam. Yazılımda kolay.</li>
-                <li><span class="dict-term" data-term="CRC">CRC<span class="tooltip">${dictionary["CRC"]}</span></span>: Polinomsal bölme. Güçlü, donanımda uygulanır.</li>
-            </ul>
+                sections: [
+                    {
+                        id: "6.1", title: "6.1 Genel Bakış",
+                        content: `
+                        <div class="content-box">
+                            <p class="text-blue-300 font-semibold mb-2">📌 Bu konuda ne öğreneceksin?</p>
+                            <p class="text-sm text-gray-300">Bağlantı katmanının sunduğu hizmetleri ve nasıl uygulandığını öğreneceksin.</p>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3 text-white">Bağlantı Katmanının Görevi</h3>
+                        <p class="mb-4">Komşu düğümler (aynı bağlantı üzerindeki cihazlar) arasında <strong>çerçeve transferi</strong>. Fiziksel katmanın sunduğu ham bit akışını anlamlandırıp güvenilir bir çerçeve iletimi sağlar.</p>
+                        <ul class="list-disc pl-6 mb-4 space-y-2">
+                            <li><strong>Hizmetler:</strong> Çerçeveleme (framing), hata algılama/düzeltme, akış kontrolü, çoklu erişim kontrolü.</li>
+                            <li><strong>Uygulama:</strong> Ethernet (kablolu), WiFi (kablosuz), PPP.</li>
+                            <li><strong>Çözüm:</strong> Her bağlantıya özel protokol. (Aynı bilgisayarda Ethernet, WiFi ve Bluetooth farklı protokoller kullanır.)</li>
+                        </ul>
+                    `
+                    },
+                    {
+                        id: "6.2", title: "6.2 Hata Algılama ve Düzeltme",
+                        content: `
+                        <div class="content-box">
+                            <p class="text-blue-300 font-semibold mb-2">📌 Bu konuda ne öğreneceksin?</p>
+                            <p class="text-sm text-gray-300">Farklı hata algılama yöntemlerinin (eşlik, internet sağlama toplamı, CRC) nasıl çalıştığını ve avantajlarını öğreneceksin.</p>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3 text-white">Yöntemler</h3>
+                        <ul class="list-disc pl-6 mb-4 space-y-2">
+                            <li><strong>Eşlik Denetimi (Parity):</strong> 1 bit eklenir (çift veya tek sayıda 1 olacak şekilde). Tek bit hatayı algılar. 2B eşlik ile 2 bit hatayı algılayabilir.</li>
+                            <li><strong>İnternet Sağlama Toplamı:</strong> 16 bitlik kelimelerin 1'e tümleyen toplamı. Yazılımda kolay ama zayıf.</li>
+                            <li><strong>CRC (Döngüsel Artıklık Kontrolü):</strong> Polinomsal bölme. Güçlü hata algılama, donanımda uygulanır. Ethernet'te kullanılır.</li>
+                        </ul>
+                        <p class="text-sm text-gray-400">Not: Bu yöntemler hata <em>algılar</em>, düzeltmez. Hatalı paket <strong>düşürülür</strong>. Düzeltme yukarı katmanlara (TCP) bırakılmıştır.</p>
+                    `
+                    },
+                    {
+                        id: "6.3", title: "6.3 Çoklu Erişim Protokolleri",
+                        content: `
+                        <div class="content-box">
+                            <p class="text-blue-300 font-semibold mb-2">📌 Bu konuda ne öğreneceksin?</p>
+                            <p class="text-sm text-gray-300">Paylaşımlı bir kanalda birden fazla düğümün aynı anda iletişim kurmasının yöntemlerini (kanal bölme, rastgele erişim, sırayla işlem) öğreneceksin.</p>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3 text-white">Üç Yaklaşım</h3>
+                        <ul class="list-disc pl-6 mb-4 space-y-2">
+                            <li><strong>Kanal Bölme (TDMA/FDMA):</strong> Zaman veya frekans bölünerek her kullanıcıya ayrı bir dilim verilir. Adil ama verimsiz (boş dilimler israf).</li>
+                            <li><strong>Rastgele Erişim:</strong> Kimse zamanlanmamış, herkes istediği zaman iletir. Çarpışma olursa geri çekilinir ve tekrar deneyin. (ALOHA, CSMA/CD, CSMA/CA).</li>
+                            <li><strong>Sırayla İşlem (Taking Turns):</strong> Sorgulama (polling) veya jeton (token) ile sırayla iletişim.</li>
+                        </ul>
+                        <div class="mermaid">
+                        graph TD
+                            A[Çoklu Erişim] --> B[Kanal Bölme: TDMA/FDMA]
+                            A --> C[Rastgele Erişim: ALOHA/CSMA]
+                            A --> D[Sırayla: Sorgulama/Jeton]
+                        </div>
+                    `
+                    },
+                    {
+                        id: "6.4", title: "6.4 LAN'lar (ARP, Ethernet, Anahtarlar, VLAN'lar)",
+                        content: `
+                        <div class="content-box">
+                            <p class="text-blue-300 font-semibold mb-2">📌 Bu konuda ne öğreneceksin?</p>
+                            <p class="text-sm text-gray-300">MAC adresleme, ARP protokolü, Ethernet çerçeve yapısı, anahtarların (switch) çalışma mantığını ve VLAN'ları öğreneceksin.</p>
+                        </div>
 
-            <h2 class="text-2xl font-bold mb-4">6.2 Çoklu Erişim Protokolleri</h2>
-            <ul class="list-disc pl-6 mb-6 space-y-2">
-                <li><span class="dict-term" data-term="CSMA/CD">CSMA/CD<span class="tooltip">${dictionary["CSMA/CD"]}</span></span>: İletmeden önce dinle, çarpışmayı algıla, iptal et ve jam sinyali gönder, ikili üstel geri çekilme. Ethernet'te kullanılır.</li>
-                <li><span class="dict-term" data-term="CSMA/CA">CSMA/CA<span class="tooltip">${dictionary["CSMA/CA"]}</span></span>: İletmeden önce dinle, DIFS süresi bekle, rastgele geri çekilme. WiFi'de kullanılır. Gizli uçbirim sorununu çözmek için isteğe bağlı RTS/CTS.</li>
-            </ul>
-            <div class="mermaid">
-            graph LR
-                A[Kanal Bölme] --> B[TDMA/FDMA]
-                C[Rastgele Erişim] --> D[ALOHA/CSMA]
-                E[Sırayla İşlem] --> F[Sorgulama/Jeton]
-            </div>
+                        <div class="exam-box">
+                            <p class="font-bold mb-1">⚠️ SINAV ODAĞI</p>
+                            <p class="text-sm">Bir cihaz aynı alt ağdaki başka bir cihaza veri gönderdiğinde ARP kullanır. Farklı alt ağa geçerken yönlendiriciyi MAC adresiyle hedefler ama hedef IP'yi korur. ARP ve rotlamanın farkını açıkla.</p>
+                        </div>
 
-            <h2 class="text-2xl font-bold mb-4">6.3 LAN'lar (ARP, Ethernet, Anahtarlar)</h2>
-            <div class="bg-red-900/50 border border-red-500 text-red-100 p-3 rounded my-2"><strong>⚠️ KLASİK SINAV ODAĞI:</strong> ARP süreci vs Rotlama süreci. Bir ana bilgisayarın ne zaman ARP kullandığını (aynı alt ağ) ve ne zaman rotladığını (farklı alt ağ) açıklayın. Bir anahtarın tablosunu ne zaman doldurduğunu ve bir yönlendiricinin tablosunu ne zaman doldurduğunu bilin.</div>
-            <ul class="list-disc pl-6 mb-6 space-y-2">
-                <li><strong>MAC Adresleri:</strong> 48 bit, düz adres (NIC'e yazılmış). Çerçeveyi aynı LAN üzerinde bir arayüzden diğerine taşımak için kullanılır.</li>
-                <li><strong>IP Adresleri:</strong> 32 bit, hiyerarşik adres. Verigramı kaynaktan hedefe taşımak için kullanılır.</li>
-                <li><span class="dict-term" data-term="ARP">ARP<span class="tooltip">${dictionary["ARP"]}</span></span>: IP'yi MAC'e çözer. Yayın sorgusu, tek nokta yanıtı. Tablo TTL ile önbelleğe alınır.</li>
-                <li><strong>Ethernet Çerçevesi:</strong> Öndeykleme, Hedef MAC, Kaynak MAC, Tür, Veri, CRC. Güvenilmez, bağlantısız.</li>
-                <li><strong>Anahtarlar (Switches):</strong> Bağlantı katmanı. Kendi kendini öğrenen (gelen kaynak MAC'ine göre tabloyu doldurur). İlet/Yay. Birden fazla eşzamanlı iletim (çarpışma yok).</li>
-            </ul>
-            <div class="mermaid">
-            sequenceDiagram
-                participant A as Ana Bilgisayar A
-                participant R as Yönlendirici
-                participant B as Ana Bilgisayar B (Farklı Alt Ağ)
-                Note over A,R: ARP İsteği (R'nin IP'si kimde?)
-                R-->>A: ARP Yanıtı (R'nin MAC'i)
-                A->>R: Çerçeve (Hedef MAC=R, Hedef IP=B)
-                Note over R,B: ARP İsteği (B'nin IP'si kimde?)
-                B-->>R: ARP Yanıtı (B'nin MAC'i)
-                R->>B: Çerçeve (Hedef MAC=B, Hedef IP=B)
-            </div>
-        `
+                        <h3 class="text-xl font-bold mb-3 text-white">MAC vs IP Adresleri</h3>
+                        <ul class="list-disc pl-6 mb-4 space-y-2">
+                            <li><strong>MAC Adresi (48 bit):</strong> Donanıma gömülü, düz, <em>bölgesel</em>. Çerçeviyi aynı LAN'da bir arayüzden diğerine taşır.</li>
+                            <li><strong>IP Adresi (32/128 bit):</strong> Mantıksal, hiyerarşik. Verigramı kaynaktan hedefe (farklı ağlar dahil) taşır.</li>
+                        </ul>
+                        <div class="content-box">
+                            <p class="text-yellow-300 font-semibold mb-2">🔑 Basit Benzetme</p>
+                            <p class="text-sm">IP adresi = Mektuptaki posta kodu (şehirler arası). MAC adresi = Apartman dairesi numarası (aynı binada).</p>
+                        </div>
+
+                        <h3 class="text-xl font-bold mb-3 text-white">ARP (Adres Çözümleme Protokolü)</h3>
+                        <p class="mb-3">Bilinen bir IP adresini <strong>bilinmeyen MAC adresine</strong> çevirir.</p>
+                        <ol class="list-decimal pl-6 mb-4 space-y-1">
+                            <li>A, B'nin IP adresini bilir ama MAC adresini bilmez.</li>
+                            <li>A, ARP isteği <strong>gönderi (broadcast)</strong> yapar: "192.168.1.5'in MAC adresi kimde?"</li>
+                            <li>Tüm cihazlar isteği alır ama sadece 192.168.1.5 olan B <strong>tek nokta</strong> olarak yanıt verir: "Benim MAC'im AA:BB:CC:DD:EE:FF"</li>
+                            <li>A, bu eşlemeyi ARP tablosuna <strong>cache'ler</strong> (TTL ile).</li>
+                        </ol>
+
+                        <h3 class="text-xl font-bold mb-3 text-white">Ethernet Çerçevesi</h3>
+                        <p class="mb-3">Öndeykleme (7 byte) + Hedef MAC + Kaynak MAC + Tür (2 byte) + Veri (46-1500 byte) + CRC (4 byte). <strong>Güvenilmez</strong> (hata varsa düşürür, düzeltmez), <strong>bağlantısız</strong>.</p>
+
+                        <h3 class="text-xl font-bold mb-3 text-white">Anahtarlar (Switches)</h3>
+                        <p class="mb-4">Bağlantı katmanı cihazı. <strong>Kendini öğrenen</strong>: Gelen çerçevenin kaynak MAC adresini tablosuna yazar. Hedef MAC'i tabloda arar – bulunursa sadece ilgili porta, bulunamazsa tüm portlara (yayın) iletir.</p>
+
+                        <h3 class="text-xl font-bold mb-3 text-white">VLAN (Sanal Yerel Ağ)</h3>
+                        <p class="mb-4">Fiziksel olarak aynı anahtar ama <strong>mantıksal olarak ayrı ağlar</strong>. Bir departmanın trafiği diğerlerinden izole edilir. Anahtarlama tablosu portları farklı VLAN'lara atar.</p>
+
+                        <div class="mermaid">
+                        sequenceDiagram
+                            participant A as Cihaz A (192.168.1.1)
+                            participant SW as Anahtar
+                            participant R as Yönlendirici
+                            participant B as Cihaz B (10.0.0.1 - Farklı Ağ)
+                            Note over A: "B'nin MAC adresi ne?"
+                            A->>SW: ARP Yayını (10.0.0.1'in MAC'i kim?)
+                            SW->>R: Yönlendirici iletir
+                            R-->>A: ARP Yanıtı (R'nin MAC'i)
+                            Note over A: Artık veriyi R'ye gönderebilir
+                            A->>SW: Çerçeve (Hedef MAC: R)
+                            SW->>R: İlet
+                            Note over R: "10.0.0.1'e nasıl ulaşırım?"
+                            R->>SW: ARP Yayını (10.0.0.1'in MAC'i kim?)
+                            SW->>B: İlet
+                            B-->>R: ARP Yanıtı (B'nin MAC'i)
+                            R->>SW: Çerçeve (Hedef MAC: B)
+                            SW->>B: İlet
+                        </div>
+                    `
+                    },
+                    {
+                        id: "6.5", title: "6.5 Bağlantı Sanallaştırma: MPLS",
+                        content: `
+                        <div class="content-box">
+                            <p class="text-blue-300 font-semibold mb-2">📌 Bu konuda ne öğreneceksin?</p>
+                            <p class="text-sm text-gray-300">MPLS'in nasıl çalıştığını ve neden kullanıldığını öğreneceksin.</p>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3 text-white">MPLS (Çoklu Protokol Etiketleme Sistemi)</h3>
+                        <p class="mb-4">Paketlere <strong>etiket (label)</strong> ekleyerek yönlendirmeyi hızlandırır. Geleneksel IP yönlendirmesinde her yönlendiricide en uzun ön ek aranırken, MPLS'de paket etikete göre doğrudan iletilir. "Hızlı yol" gibi düşün – IP tablosuna bakmadan direkt etikete göre gider.</p>
+                        <ul class="list-disc pl-6 mb-4 space-y-2">
+                            <li>Çekirdek ağlarda (ISS'ler arası) kullanılır.</li>
+                            <li>QoS (Hizmet Kalitesi), VPN ve trafik mühendisliği sağlar.</li>
+                            <li>Etiketler yönlendiriciler (LSR) arasında eklenir ve çıkarılır (push/pop/swap).</li>
+                        </ul>
+                    `
+                    },
+                    {
+                        id: "6.6", title: "6.6 Veri Merkezi Ağları",
+                        content: `
+                        <div class="content-box">
+                            <p class="text-blue-300 font-semibold mb-2">📌 Bu konuda ne öğreneceksin?</p>
+                            <p class="text-sm text-gray-300">Veri merkezi ağ mimarisi, yük dengeleme ve bulut bilişim altyapısını öğreneceksin.</p>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3 text-white">Veri Merkezi Mimarisi</h3>
+                        <p class="mb-4">Binlerce sunucunun bulunduğu, Google/Facebook/Amazon gibi şirketlerin kullandığı altyapı.</p>
+                        <ul class="list-disc pl-6 mb-4 space-y-2">
+                            <li><strong>Yapı Ağacı (Tree Topology):</strong> Eşik (TOR) → Agregasyon → Çekirdek. Üst seviyeler pahalı ama hızlı.</li>
+                            <li><strong>Yük Dengeleme (Load Balancing):</strong> İsteklerin farklı sunuculara dağıtılması. HTTP'de CDN, DNS'de Round-Robin.</li>
+                            <li><strong>Yedeklilik:</strong> Tek nokta hatasını önlemek için çiftlemeli yapılar.</li>
+                        </ul>
+                    `
+                    }
+                ],
+                quiz: [
+                    { q: "ARP'nin temel görevi nedir?", options: ["IP adresi vermek", "IP adresini MAC adresine çevirmek", "Paketleri şifrelemek", "DNS sorgusu yapmak"], answer: 1 },
+                    { q: "Anahtar (switch) tablosunu nasıl doldurur?", options: ["Yönetici tarafından elle", "Gelen çerçeve kaynak MAC adresine göre", "IP adreslerine göre", "DNS sunucusundan"], answer: 1 },
+                    { q: "Ethernet'te hata algılamak için hangi yöntem kullanılır?", options: ["Eşlik", "TCP", "CRC", "RSA"], answer: 2 },
+                    { q: "VLAN'ın temel amacı nedir?", options: ["Hız artırmak", "Mantıksal ağ ayrımı yapmak", "Veri şifrelemek", "DNS hızlandırmak"], answer: 1 },
+                    { q: "MPLS ne yapar?", options: ["IP adreslerini çevirir", "Etiket bazlı yönlendirme yapar", "Hata düzeltir", "Şifreleme sağlar"], answer: 1 }
+                ]
             },
             "ch7": {
                 title: "Bölüm 7: Kablosuz ve Mobil Ağlar",
-                content: `
-            <h2 class="text-2xl font-bold mb-4">7.1 Kablosuz Bağlantı Özellikleri</h2>
-            <ul class="list-disc pl-6 mb-6 space-y-2">
-                <li><strong>Yol Kaybı (Path Loss):</strong> Mesafeyle sinyal zayıflaması.</li>
-                <li><strong>Çok Yollu (Multipath):</strong> Sinyalin nesnelerden yansıyarak farklı zamanlarda varması (sönümlemeye/sektirmeye neden olur).</li>
-                <li><strong>Gizli Uçbirim Sorunu (Hidden Terminal):</strong> A ve C birbirini duyamaz ama B ile konuşabilir, B'de çarpışma olur.</li>
-                <li><span class="dict-term" data-term="MIMO">MIMO<span class="tooltip">${dictionary["MIMO"]}</span></span>: Birden fazla anten. Uzamsal çeşitlilik (güvenilirlik) vs Uzamsal çoğullama (verimlilik).</li>
-            </ul>
-
-            <h2 class="text-2xl font-bold mb-4">7.2 WiFi (802.11)</h2>
-            <ul class="list-disc pl-6 mb-6 space-y-2">
-                <li><strong>CSMA/CA:</strong>
-                    <ul class="list-disc pl-6 mt-1">
-                        <li>1. Kanalı DIFS süresi boş dinle -> İlet.</li>
-                        <li>2. Meşgulse, boş DIFS süresini bekle, ardından rastgele geri çekilme seç.</li>
-                        <li>3. Çarpışma algılaması yok! Alıcı SIFS sonrası ACK gönderir.</li>
-                    </ul>
-                </li>
-                <li><strong>RTS/CTS:</strong> Gizli uçbirimi çözer. Gönderici istekte bulunur (RTS), AP izin verir (CTS), diğerleri bekler.</li>
-                <li><strong>Adresleme:</strong> Çerçevede 3 adres (Alıcı, Verici, Yönlendirici Arayüzü).</li>
-            </ul>
-
-            <h2 class="text-2xl font-bold mb-4">7.3 Hücresel (4G/5G)</h2>
-            <ul class="list-disc pl-6 mb-6 space-y-2">
-                <li><span class="dict-term" data-term="OFDMA">OFDMA<span class="tooltip">${dictionary["OFDMA"]}</span></span>: Spektrumu alt taşıyıcılara böler, baz istasyonu tarafından Kaynak Blokları (RB) halinde zamanlanır.</li>
-                <li><strong>RAN:</strong> Radyo Erişim Ağı (Baz istasyonları + kontrolcüler).</li>
-                <li><strong>Çekirdek (Core):</strong> CUPS (Kontrol/Kullanıcı Düzlemi Ayrımı). Paketleri yönlendirir, mobiliteyi yönetir, kimlik doğrulama.</li>
-                <li><strong>Zamanlama:</strong> Orantılı Adillik (Proportional Fairness - kanal kalitesi CQI'ye göre maksimum veri üretimi ile adillik arasındaki denge).</li>
-            </ul>
-        `
+                sections: [
+                    {
+                        id: "7.1", title: "7.1 Genel Bakış",
+                        content: `
+                        <div class="content-box">
+                            <p class="text-blue-300 font-semibold mb-2">📌 Bu konuda ne öğreneceksin?</p>
+                            <p class="text-sm text-gray-300">Kablosuz ağların temel özelliklerini, zorluklarını ve temel bileşenlerini öğreneceksin.</p>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3 text-white">Kablosuz Ağların Temel Zorlukları</h3>
+                        <ul class="list-disc pl-6 mb-4 space-y-2">
+                            <li><strong>Yol Kaybı (Path Loss):</strong> Sinyal mesafeyle zayıflar. Yakınsan güçlü, uzaktansan zayıf sinyal.</li>
+                            <li><strong>Çok Yollu Etki (Multipath):</strong> Sinyal binalardan, yerden, nesnelerden yansıyarak farklı zamanlarda ulaşır. Sinyal birbiriyle çarpışarak <em>sönümleme</em> (fading) yaratır.</li>
+                            <li><strong>Gizli Uçbirim Sorunu:</strong> A ve C birbirini duyamaz ama ikisi de B ile iletişim kurabilir. A ve C aynı anda iletirse B'de çarpışma olur ama ikisi de birbirinin iletimini algılayamaz.</li>
+                            <li><strong>Bölünmüş Güç:</strong> Pil ömrü sınırlıdır. Cihazlar sürekli veri gönderemez.</li>
+                        </ul>
+                    `
+                    },
+                    {
+                        id: "7.2", title: "7.2 Radyo: Fiziksel Katman",
+                        content: `
+                        <div class="content-box">
+                            <p class="text-blue-300 font-semibold mb-2">📌 Bu konuda ne öğreneceksin?</p>
+                            <p class="text-sm text-gray-300">Elektromanyetik spektrum, sinyal yayma, MIMO ve modülasyon temellerini öğreneceksin.</p>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3 text-white">Temel Kavramlar</h3>
+                        <ul class="list-disc pl-6 mb-4 space-y-2">
+                            <li><strong>Spektrum:</strong> Frekans aralıkları. Düşük frekans = uzun menzil, düşük hız. Yüksek frekans = kısa menzil, yüksek hız.</li>
+                            <li><strong>Modülasyon:</strong> Sayısal veriyi radyo dalgasına dönüştürme. BPSK, QAM gibi teknikler. Daha yüksek modülasyon = daha yüksek hız ama daha fazla hata.</li>
+                            <li><strong>MIMO:</strong> Birden fazla anten. <em>Uzamsal çeşitlilik</em> (güvenilirlik için – aynı veri farklı yollardan) veya <em>uzamsal çoğullama</em> (verimlilik için – farklı veriler farklı antenlerden).</li>
+                        </ul>
+                    `
+                    },
+                    {
+                        id: "7.3", title: "7.3 Kablosuz Erişim Ağı",
+                        content: `
+                        <div class="content-box">
+                            <p class="text-blue-300 font-semibold mb-2">📌 Bu konuda ne öğreneceksin?</p>
+                            <p class="text-sm text-gray-300">WiFi (802.11), CSMA/CA protokolü, OFDMA ve 5G RAN yapısını öğreneceksin.</p>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3 text-white">WiFi (802.11)</h3>
+                        <p class="mb-3">Kablosuz LAN standardı. Erişim noktası (AP) merkezi koordinatördür. <strong>CSMA/CA</strong> kullanır (çarpışmayı algılamak yerine <strong>önlemeye</strong> çalışır):</p>
+                        <ol class="list-decimal pl-6 mb-4 space-y-1">
+                            <li>Kanalı <strong>DIFS</strong> süresi boyunca boş dinle.</li>
+                            <li>Boşsa iletime başla.</li>
+                            <li>Meşgulse, rastgele bir geri çekilme süresi seç ve bekle.</li>
+                            <li>Alıcı SIFS sonra ACK gönderir (başarılı iletim).</li>
+                            <li><strong>RTS/CTS:</strong> Gizli uçbirimi çözmek için istek/onay mekanizması.</li>
+                        </ol>
+                        <h3 class="text-xl font-bold mb-3 text-white">OFDMA</h3>
+                        <p class="mb-4">4G ve 5G'de kullanılır. Spektrumu <strong>dar alt taşıyıcılara</strong> böler. Baz istasyonu, her kullanıcıya zaman ve frekans dilimlerini (<em>Kaynak Blokları</em>) dinamik olarak atar.</p>
+                        <h3 class="text-xl font-bold mb-3 text-white">5G RAN (Radyo Erişim Ağı)</h3>
+                        <p class="mb-4">5G'nin erişim altyapısı. Daha yüksek hız (10 Gbps'ye kadar), daha düşük gecikme (1ms), daha fazla cihaz bağlantısı (km² başına 1 milyon cihaz).</p>
+                    `
+                    },
+                    {
+                        id: "7.4", title: "7.4 Kablosuz Çekirdek Ağ",
+                        content: `
+                        <div class="content-box">
+                            <p class="text-blue-300 font-semibold mb-2">📌 Bu konuda ne öğreneceksin?</p>
+                            <p class="text-sm text-gray-300">5G çekirdek ağ mimarisini ve CUPS (Kontrol/Kullanıcı Düzlemi Ayrımı) kavramını öğreneceksin.</p>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3 text-white">5G Çekirdek (Core)</h3>
+                        <p class="mb-4">Hücresel ağın "beynidir". Paketleri yönlendirir, mobiliteyi yönetir, kimlik doğrulama yapar, faturalandırma sağlar.</p>
+                        <h3 class="text-xl font-bold mb-3 text-white">CUPS (Control/User Plane Separation)</h3>
+                        <p class="mb-4">Kontrol düzlemi (karar verme) ve kullanıcı düzlemi (veri iletimi) <strong>birbirinden ayrılır</strong>. Bu sayede her biri bağımsız olarak ölçeklenebilir. Düşük gecikme gerektiren uygulamalar (otonomous araçlar, endüstriyel IoT) için ideal.</p>
+                    `
+                    },
+                    {
+                        id: "7.5", title: "7.5 Mobilite",
+                        content: `
+                        <div class="content-box">
+                            <p class="text-blue-300 font-semibold mb-2">📌 Bu konuda ne öğreneceksin?</p>
+                            <p class="text-sm text-gray-300">Cihazlar hareket ederken ağ keşfi, zamanlama ve enerji yönetimini öğreneceksin.</p>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3 text-white">Ağ Keşfi</h3>
+                        <p class="mb-4">Cihazlar etraftaki ağları bulmak için <em>tarama (scanning)</em> yapar. Pasif tarama (beacon çerçeve bekler) ve aktif tarama (sondaj isteği gönderir) yöntemleri vardır.</p>
+                        <h3 class="text-xl font-bold mb-3 text-white">Enerji Yönetimi</h3>
+                        <p class="mb-4">Mobil cihazların pili sınırlıdır. WiFi'de <strong>güç tasarrufu modu</strong> cihazın uykuya geçmesini, periyodik olarak uyanıp "bana bir şey var mı?" kontrolü yapmasını sağlar.</p>
+                    `
+                    },
+                    {
+                        id: "7.6", title: "7.6 Bluetooth, Uydu ve IoT Kablosuz Ağları",
+                        content: `
+                        <div class="content-box">
+                            <p class="text-blue-300 font-semibold mb-2">📌 Bu konuda ne öğreneceksin?</p>
+                            <p class="text-sm text-gray-300">Bluetooth, uydu ağları ve IoT kablosuz protokollerinin özelliklerini öğreneceksin.</p>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3 text-white">Bluetooth</h3>
+                        <p class="mb-4">Kısa menzilli (10-100m), düşük güç tüketimli. <strong>Kişisel Alan Ağı (PAN)</strong> için tasarlanır. Kulaklık, klavye, fare gibi cihazları bağlar. IEEE 802.15 standardı.</p>
+                        <h3 class="text-xl font-bold mb-3 text-white">Uydu Ağları</h3>
+                        <p class="mb-4">Yer istasyonları ile uydu arasındaki iletişim. <strong>Yüksek gecikme</strong> (~600ms LEO, ~240ms GEO). Uzak bölgeler, deniz, havacılık için kritik. Starlink, OneWeb gibi projeler LEO (Alçak Dünya Yörüngesi) uydularla gecikmeyi düşürüyor.</p>
+                        <h3 class="text-xl font-bold mb-3 text-white">IoT Kablosuz Protokolleri</h3>
+                        <ul class="list-disc pl-6 mb-4 space-y-2">
+                            <li><strong>ZigBee:</strong> Düşük güç, kısa menzil. Akıllı ev sensörleri.</li>
+                            <li><strong>LoRa:</strong> Uzun menzil (km), düşük veri hızı. Tarımsal izleme.</li>
+                            <li><strong>NB-IoT:</strong> Hücre tabanlı, geniş kapsama. Akıllı sayaçlar.</li>
+                        </ul>
+                    `
+                    }
+                ],
+                quiz: [
+                    { q: "WiFi'de çarpışmayı önlemek için hangi protokol kullanılır?", options: ["CSMA/CD", "CSMA/CA", "TDMA", "FDMA"], answer: 1 },
+                    { q: "Gizli uçbirim sorunu nedir?", options: ["Sinyal zayıflaması", "İki cihaz birbirini duyamaz ama aynı AP'e iletir", "Paket kaybı", "DNS hatası"], answer: 1 },
+                    { q: "MIMO'nun uzamsal çoğullama amacı nedir?", options: ["Güvenilirliği artırmak", "Verimliliği artırmak", "Gecikmeyi azaltmak", "Gücü azaltmak"], answer: 1 },
+                    { q: "5G'de CUPS'un amacı nedir?", options: ["Şifreleme yapmak", "Kontrol ve veri düzlemlerini ayırmak", "DNS hızlandırmak", "Bluetooth entegrasyonu"], answer: 1 },
+                    { q: "Uydu ağlarının temel dezavantajı nedir?", options: ["Düşük hız", "Yüksek gecikme", "Kapsama alanı dar", "Güvenliksiz"], answer: 1 }
+                ]
             },
             "ch8": {
                 title: "Bölüm 8: Güvenlik",
-                content: `
-            <h2 class="text-2xl font-bold mb-4">8.1 Kriptografi</h2>
-            <div class="bg-red-900/50 border border-red-500 text-red-100 p-3 rounded my-2"><strong>⚠️ KLASİK SINAV ODAĞI:</strong> Simetrik vs Açık Anahtarlı Kripto. RSA'nın matematiksel olarak nasıl çalıştığını açıklayın (modüler üs alma). Açık anahtarlı sistemin anahtar dağıtım sorununu nasıl çözdüğünü ancak Sertifika Otoritelerine (CA) ihtiyaç doğurduğunu anlamak.</div>
-            <ul class="list-disc pl-6 mb-6 space-y-2">
-                <li><strong>Simetrik Anahtar:</strong> Aynı anahtar şifreler/çözer (DES, AES). Hızlıdır ama anahtar nasıl paylaşılacak?</li>
-                <li><strong>Açık Anahtar (Public Key):</strong> <span class="dict-term" data-term="RSA">RSA<span class="tooltip">${dictionary["RSA"]}</span></span>. Açık anahtar şifreler (veya doğrular), Özel anahtar çözer (veya imzalar). Yavaştır.</li>
-                <li><strong>RSA Matematiği:</strong> n=pq, z=(p-1)(q-1). Öyle e, d seçin ki ed mod z = 1 olsun. Açık anahtar (n,e), Özel anahtar (n,d). Şifrele: m^e mod n. Çöz: c^d mod n.</li>
-            </ul>
+                sections: [
+                    {
+                        id: "8.1", title: "8.1 Ağ Güvenliği Nedir?",
+                        content: `
+                        <div class="content-box">
+                            <p class="text-blue-300 font-semibold mb-2">📌 Bu konuda ne öğreneceksin?</p>
+                            <p class="text-sm text-gray-300">Güvenliğin üç temel sütununu (gizlilik, kimlik doğrulama, bütünlük) ve tehditlerin sınıflandırılmasını öğreneceksin.</p>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3 text-white">Temel Güvenlik Hizmetleri</h3>
+                        <ul class="list-disc pl-6 mb-4 space-y-2">
+                            <li><strong>Gizlilik (Confidentiality):</strong> Sadece yetkili kişiler okuyabilir. Şifreleme ile sağlanır.</li>
+                            <li><strong>Kimlik Doğrulama (Authentication):</strong> İletişimdeki tarafın gerçekten kim olduğunu kanıtlama.</li>
+                            <li><strong>Bütünlük (Integrity):</strong> Verilerin yolculuk sırasında değiştirilmediğinin garantisi.</li>
+                        </ul>
+                        <h3 class="text-xl font-bold mb-3 text-white">Tehditler</h3>
+                        <ul class="list-disc pl-6 mb-4 space-y-2">
+                            <li><strong>Paket Dinleme (Eavesdropping):</strong> Trafik izlenir.</li>
+                            <li><strong>IP Sahteciliği (Spoofing):</strong> Sahte kaynak adresi ile paket gönderimi.</li>
+                            <li><strong>DDoS:</strong> Dağınık hizmet reddi saldırısı.</li>
+                            <li><strong>Ortadaki Adam (MITM):</strong> İki taraf arasındaki iletişim dinlenir/değiştirilir.</li>
+                        </ul>
+                    `
+                    },
+                    {
+                        id: "8.2", title: "8.2 Kriptografi İlkeleri",
+                        content: `
+                        <div class="content-box">
+                            <p class="text-blue-300 font-semibold mb-2">📌 Bu konuda ne öğreneceksin?</p>
+                            <p class="text-sm text-gray-300">Simetrik ve açık anahtarlı kriptografinin farklarını, RSA algoritmasının matematiğini ve pratik uygulamalarını öğreneceksin.</p>
+                        </div>
 
-            <h2 class="text-2xl font-bold mb-4">8.2 Kimlik Doğrulama ve Bütünlük</h2>
-            <ul class="list-disc pl-6 mb-6 space-y-2">
-                <li><strong>Kimlik Doğrulama (ap5.0):</strong> Tek seferlik sayı (nonce) R kullan. Alice R'yi özel anahtarıyla şifreler, Bob açık anahtarla çözer. CA olmadan ortadaki adam (Man-in-Middle) saldırısı mümkündür.</li>
-                <li><span class="dict-term" data-term="Dijital İmza">Dijital İmza<span class="tooltip">${dictionary["Dijital İmza"]}</span></span>: Mesajın özetini (hash) özel anahtarla imzala. Bütünlük, kimlik doğrulama, inkâr edilemezlik sağlar.</li>
-                <li><strong>CA:</strong> Açık anahtarın bir varlığa ait olduğunu onaylar. Varlığın açık anahtarı CA'nın özel anahtarı ile imzalanır.</li>
-            </ul>
-            <div class="mermaid">
-            graph LR
-                A[Mesaj m] --> B[Özet Hash]
-                B --> C[Özel Anahtar ile Şifrele]
-                C --> D[Dijital İmza]
-                D --> E[m'e Ekle]
-            </div>
+                        <div class="exam-box">
+                            <p class="font-bold mb-1">⚠️ SINAV ODAĞI</p>
+                            <p class="text-sm">RSA'nın matematiğini bil: n=pq, z=(p-1)(q-1), ed mod z = 1. Açık ve özel anahtar çiftinin nasıl oluşturulduğunu, şifreleme/çözme denklemlerini açıkla.</p>
+                        </div>
 
-            <h2 class="text-2xl font-bold mb-4">8.3 TLS ve IPsec</h2>
-            <ul class="list-disc pl-6 mb-6 space-y-2">
-                <li><span class="dict-term" data-term="TLS">TLS<span class="tooltip">${dictionary["TLS"]}</span></span>: Aktarım katmanı. El Sıkışma (kimlik doğrulama, RSA/DH ile anahtar değişimi) -> Simetrik anahtarları türet -> Veri aktarımı (MAC + Şifreleme). Durumludur, tekrar oynatmayı (replay) önlemek için sıra numaraları kullanır.</li>
-                <li><span class="dict-term" data-term="IPsec">IPsec<span class="tooltip">${dictionary["IPsec"]}</span></span>: Ağ katmanı. ESP tünel modu (orijinal IP verigramının tamamını şifreler, yeni IP başlığı ekler). SA (Güvenlik İlişkisi) kuralları tanımlar.</li>
-            </ul>
+                        <h3 class="text-xl font-bold mb-3 text-white">Simetrik Anahtar Kriptografisi</h3>
+                        <p class="mb-4">Aynı anahtar hem şifreler hem çözer. <strong>Hızlıdır</strong> (AES, DES). Ama <strong>anahtar nasıl paylaşılacak?</strong> Sorun budur – güvenli olmayan kanalda anahtarı paylaşamazsın.</p>
 
-            <h2 class="text-2xl font-bold mb-4">8.4 Kablosuz Güvenlik (WPA2/3)</h2>
-            <ul class="list-disc pl-6 mb-6 space-y-2">
-                <li><strong>WPA2-PSK:</strong> 4 yönlü el sıkışması. AP ve istemcinin önceden paylaşılmış anahtarı bilmesini sağlar (anahtarı göndermeden). Oturum anahtarları üretir.</li>
-                <li><strong>802.1X Enterprise:</strong> RADIUS sunucusu kullanır. EAP-TTLS kimlik doğrulaması için TLS tüneli oluşturur.</li>
-            </ul>
+                        <h3 class="text-xl font-bold mb-3 text-white">Açık Anahtarlı Kriptografi (RSA)</h3>
+                        <p class="mb-3">Herkesin kullanabileceği <strong>açık anahtar</strong> ve sadece senin bildiğin <strong>özel anahtar</strong> vardır. Büyük asal sayıların çarpanlarına ayrılması zorluğuna dayanır.</p>
+                        <div class="content-box bg-gray-900 border border-blue-500 font-mono text-sm">
+                            <p class="text-blue-200">RSA Adımları:</p>
+                            <p class="text-gray-300">1. İki büyük asal sayı seç: p ve q</p>
+                            <p class="text-gray-300">2. n = p × q hesapla</p>
+                            <p class="text-gray-300">3. z = (p-1) × (q-1) hesapla (Euler fonksiyonu)</p>
+                            <p class="text-gray-300">4. z ile asal, e seç (örn: e = 65537)</p>
+                            <p class="text-gray-300">5. d = e⁻¹ mod z hesapla (modüler ters)</p>
+                            <p class="text-yellow-300 mt-2">Açık Anahtar: (n, e) | Özel Anahtar: (n, d)</p>
+                            <p class="text-green-300 mt-1">Şifrele: c = m^e mod n</p>
+                            <p class="text-green-300">Çözme: m = c^d mod n</p>
+                        </div>
+                        <div class="content-box mt-2">
+                            <p class="text-yellow-300 font-semibold mb-2">🔑 Neden Güvenli?</p>
+                            <p class="text-sm">n'i biliyoruz ama p ve q'yu bilmiyoruz. Büyük sayıyı çarpanlarına ayırmak (örn: 2048 bit) şu anki bilgisayarlarla imkânsız denecek kadar zor.</p>
+                        </div>
+                    `
+                    },
+                    {
+                        id: "8.3", title: "8.3 Kimlik Doğrulama ve Dijital İmzalar",
+                        content: `
+                        <div class="content-box">
+                            <p class="text-blue-300 font-semibold mb-2">📌 Bu konuda ne öğreneceksin?</p>
+                            <p class="text-sm text-gray-300">Mesaj bütünlüğü, dijital imzalar, Diffie-Hellman anahtar değişimi ve Sertifika Otoritelerini öğreneceksin.</p>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3 text-white">Dijital İmza</h3>
+                        <p class="mb-4">Mesajın özetini (hash) <strong>özel anahtarınla</strong> şifrele. Herkes <strong>açık anahtarınla</strong> doğrulayabilir. Üç hizmet sağlar: Kimlik doğrulama, bütünlük, inkâr edilemezlik.</p>
+                        <div class="mermaid">
+                        graph LR
+                            A[Mesaj] --> B[Hash Fonksiyonu]
+                            B --> C[Özet (Digest)]
+                            C --> D[Özel Anahtar ile Şifrele]
+                            D --> E[Dijital İmza]
+                            E --> F[Mesaj ile Birlikte Gönder]
+                        </div>
 
-            <h2 class="text-2xl font-bold mb-4">8.5 Güvenlik Duvarları (Firewalls)</h2>
-            <ul class="list-disc pl-6 mb-6 space-y-2">
-                <li><strong>Durumsuz Paket Filtreleyiciler:</strong> IP, Port, SYN/ACK bitlerine göre ACL kuralları.</li>
-                <li><strong>Durumlu Paket Filtreleyiciler:</strong> TCP bağlantılarını takip eder. Sadece içeriden başlatılan bağlantılara içeriden gelenlere izin verir.</li>
-                <li><strong>Uygulama Ağ Geçitleri:</strong> Uygulama trafiğini vekil sunucu (proxy) gibi yönlendirir. Derin denetim.</li>
-            </ul>
-        `
+                        <h3 class="text-xl font-bold mb-3 text-white">Diffie-Hellman Anahtar Değişimi</h3>
+                        <p class="mb-4">İki taraf <strong>güvenli olmayan bir kanalda</strong> ortak bir gizli anahtar oluşturabilir. Temeli: diskret logaritma probleminin zorluğu.</p>
+
+                        <h3 class="text-xl font-bold mb-3 text-white">Sertifika Otoritesi (CA)</h3>
+                        <p class="mb-4">Açık anahtarın kime ait olduğunu <strong>güvenilir bir üçüncü taraf</strong> doğrular. CA, senin açık anahtarını kendi özel anahtarıyla imzalar. Bu sayede herkes anahtarının gerçek sahibini doğrulayabilir. Buna <em>dijital sertifika</em> denir.</p>
+                    `
+                    },
+                    {
+                        id: "8.4", title: "8.4 E-posta Güvenliği",
+                        content: `
+                        <div class="content-box">
+                            <p class="text-blue-300 font-semibold mb-2">📌 Bu konuda ne öğreneceksin?</p>
+                            <p class="text-sm text-gray-300">PGP ve S/MIME gibi e-posta şifreleme yöntemlerini öğreneceksin.</p>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3 text-white">PGP (Pretty Good Privacy)</h3>
+                        <p class="mb-4">E-posta şifrelemek için kullanılır. Hibrit yaklaşım: Mesaj simetrik anahtarla (hızlı) şifrelenir, simetrik anahtar açık anahtarla (güvenli) şifrelenir. GPG (GNU Privacy Guard) açık kaynak alternatifi.</p>
+                        <h3 class="text-xl font-bold mb-3 text-white">S/MIME</h3>
+                        <p class="mb-4">Kurumsal e-posta güvenliği için. CA tabanlı sertifika sistemi kullanır. Gmail, Outlook gibi istemcilerde yerleşik destek.</p>
+                    `
+                    },
+                    {
+                        id: "8.5", title: "8.5 TLS: TCP Güvenliği",
+                        content: `
+                        <div class="content-box">
+                            <p class="text-blue-300 font-semibold mb-2">📌 Bu konuda ne öğreneceksin?</p>
+                            <p class="text-sm text-gray-300">TLS el sıkışma sürecini, simetrik anahtar değişimini ve HTTPS'in nasıl çalıştığını öğreneceksin.</p>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3 text-white">TLS El Sıkışması</h3>
+                        <ol class="list-decimal pl-6 mb-4 space-y-2">
+                            <li><strong>İstemci Selamlaması:</strong> Desteklenen şifre suitleri ve rastgele sayı gönderilir.</li>
+                            <li><strong>Sunucu Yanıtı:</strong> Sertifika + seçilen şifre suiti + rastgele sayı.</li>
+                            <li><strong>Anahtar Değişimi:</strong> Master secret hesaplanır (RSA veya Diffie-Hellman ile).</li>
+                            <li><strong>Simetrik Şifreleme Başlar:</strong> Artık tüm iletişim AES gibi simetrik algoritmayla şifrelenir.</li>
+                        </ol>
+                        <p class="mb-4">TLS <strong>durumludur</strong>: Sıra numaraları kullanarak tekrar oynatma (replay) saldırılarını önler. MAC (Mesaj Doğrulama Kodu) ile bütünlük sağlar.</p>
+                        <div class="content-box">
+                            <p class="text-yellow-300 font-semibold mb-2">🔑 Neden Hibrit?</p>
+                            <p class="text-sm">Açık anahtarlı kripto yavaştır (büyük veri için). Simetrik kripto hızlıdır ama anahtar paylaşımı zordur. TLS ikisini birleştirir: Anahtar değişimini açık anahtarla, veriyi simetrik anahtarla şifreler.</p>
+                        </div>
+                    `
+                    },
+                    {
+                        id: "8.6", title: "8.6 Ağ Katmanı Güvenliği: IPsec",
+                        content: `
+                        <div class="content-box">
+                            <p class="text-blue-300 font-semibold mb-2">📌 Bu konuda ne öğreneceksin?</p>
+                            <p class="text-sm text-gray-300">IPsec'in nasıl çalıştığını, tunel modunu, ESP/AH protokollerini ve VPN uygulamasını öğreneceksin.</p>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3 text-white">IPsec Nedir?</h3>
+                        <p class="mb-4">Ağ katmanında güvenli iletişim sağlayan protokol paketi. VPN (Sanal Özel Ağ) bağlantılarda广泛 kullanılır.</p>
+                        <ul class="list-disc pl-6 mb-4 space-y-2">
+                            <li><strong>ESP (Güvenli Sarma Yükü):</strong> Şifreleme + Kimlik doğrulama. Veri ve başlık korunur.</li>
+                            <li><strong>AH (Doğrulama Başlığı):</strong> Sadece kimlik doğrulama. Şifreleme yok.</li>
+                            <li><strong>Tunel Modu:</strong> Orijinal IP verigramının tamamı şifrelenir, yeni bir IP başlığı eklenir. Site-to-site VPN'lerde kullanılır.</li>
+                            <li><strong>Transport Modu:</strong> Sadece veri部分ı şifrelenir. Host-to-host VPN'lerde.</li>
+                            <li><strong>SA (Güvenlik İlişkisi):</strong> İki taraf arasında şifreleme parametrelerini tanımlayan eşleşme.</li>
+                        </ul>
+                    `
+                    },
+                    {
+                        id: "8.7", title: "8.7 Kablosuz ve Mobil Ağ Güvenliği",
+                        content: `
+                        <div class="content-box">
+                            <p class="text-blue-300 font-semibold mb-2">📌 Bu konuda ne öğreneceksin?</p>
+                            <p class="text-sm text-gray-300">WPA2/3 güvenlik mekanizmalarını, 4 yönlü el sıkışmayı ve 5G kimlik doğrulamasını öğreneceksin.</p>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3 text-white">WPA2-PSK</h3>
+                        <p class="mb-3">En yaygın WiFi güvenlik standardı. <strong>4 yönlü el sıkışması</strong> ile AP ve istemci arasında oturum anahtarı üretilir. Ön paylaşımlı anahtar (PSK) asla doğrudan gönderilmez – sadece bilişsel olarak bilinir.</p>
+                        <h3 class="text-xl font-bold mb-3 text-white">WPA3</h3>
+                        <p class="mb-3">En güncel standart. <strong>SAE (Simultaneous Authentication of Equals)</strong> kullanır – öndeykleme saldırılarına (offline dictionary attack) karşı korur.</p>
+                        <h3 class="text-xl font-bold mb-3 text-white">802.1X Enterprise</h3>
+                        <p class="mb-4">Kurumsal WiFi. <strong>RADIUS sunucusu</strong> kullanır. EAP-TTLS ile kimlik doğrulama için bir TLS tüneli oluşturulur.</p>
+                        <h3 class="text-xl font-bold mb-3 text-white">5G Kimlik Doğrulaması</h3>
+                        <p class="mb-4">5G'de USIM kart kullanılır. 5G-AKA (Authentication and Key Agreement) protokolü ile hem kullanıcı hem şebeke doğrulanır.</p>
+                    `
+                    },
+                    {
+                        id: "8.8", title: "8.8 Operasyonel Güvenlik: Güvenlik Duvarları ve IDS",
+                        content: `
+                        <div class="content-box">
+                            <p class="text-blue-300 font-semibold mb-2">📌 Bu konuda ne öğreneceksin?</p>
+                            <p class="text-sm text-gray-300">Güvenlik duvarı türlerini (paket filtreleme, durum tabanlı, uygulama katmanı) ve IDS/IPS sistemlerini öğreneceksin.</p>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3 text-white">Güvenlik Duvarı Türleri</h3>
+                        <ul class="list-disc pl-6 mb-4 space-y-2">
+                            <li><strong>Durumsuz Paket Filtreleyici:</strong> IP, Port, SYN/ACK bayraklarına göre karar verir. Hızlı ama basit. ACL (Erişim Kontrol Listesi) kuralları kullanır.</li>
+                            <li><strong>Durumlu Paket Filtreleyici:</strong> TCP bağlantı durumunu takip eder. Sadece içeriden başlatılan bağlantılara dışarıdan gelen trafiğe izin verir.</li>
+                            <li><strong>Uygulama Ağ Geçidi (Proxy):</strong> Trafiği vekil sunucu üzerinden yönlendirir. Derin paket denetimi yapabilir.</li>
+                        </ul>
+                        <h3 class="text-xl font-bold mb-3 text-white">IDS (İzleme) ve IPS (Önleme)</h3>
+                        <ul class="list-disc pl-6 mb-4 space-y-2">
+                            <li><strong>IDS (Intrusion Detection System):</strong> Ağ trafiğini <strong>izler</strong>, şüpheli etkinlikleri raporlar. Pasif – trafiği durdurmaz.</li>
+                            <li><strong>IPS (Intrusion Prevention System):</strong> IDS gibi çalışır ama <strong>şüpheli trafiği aktif olarak engeller</strong>. Trafik akışına yerleştirilir.</li>
+                        </ul>
+                        <div class="content-box">
+                            <p class="text-yellow-300 font-semibold mb-2">🔑 Gerçek Hayat</p>
+                            <p class="text-sm">Evindeki WiFi-router aslında bir NAT + durumlu güvenlik duvarı. Dışarıdan gelen bağlantılara izin vermez ama içeriğin dışarıyla iletişim kurmasına izin verir.</p>
+                        </div>
+                    `
+                    }
+                ],
+                quiz: [
+                    { q: "RSA'da açık anahtar hangi bileşenlerden oluşur?", options: ["(p, q)", "(n, d)", "(n, e)", "(e, d)"], answer: 2 },
+                    { q: "Dijital imza hangi anahtarla oluşturulur?", options: ["Açık anahtarla", "Özel anahtarla", "Paylaşımlı anahtarla", "Rastgele anahtarla"], answer: 1 },
+                    { q: "TLS'de simetrik anahtar neden tercih edilir?", options: ["Daha güvenli olduğu için", "Daha hızlı olduğu için", "Daha basit olduğu için", "Açık anahtar kullanılamaz"], answer: 1 },
+                    { q: "Güvenlik duvarı türleri arasında hangisi TCP bağlantı durumunu takip eder?", options: ["Durumsuz paket filtreleyici", "Durumlu paket filtreleyici", "Uygulama ağ geçidi", "Hepsi"], answer: 1 },
+                    { q: "WPA3'te hangi yeni özellik vardır?", options: ["WEP kullanımı", "SAE (Simultaneous Authentication of Equals)", "Açık anahtar şifreleme", "NAT kullanımı"], answer: 1 }
+                ]
             }
         };
 
-        // --- UYGULAMA MANTIĞI ---
+        // ========== UYGULAMA MANTIĞI ==========
+        let currentChapter = 'ch1';
 
         function buildNavigation() {
             const navList = document.getElementById('nav-list');
-            const mobileNav = document.getElementById('nav-list-mobile');
             navList.innerHTML = '';
-            mobileNav.innerHTML = '';
+            const completed = JSON.parse(localStorage.getItem('completedChapters') || '[]');
 
             Object.keys(contentData).forEach(key => {
                 const item = contentData[key];
+                const isCompleted = completed.includes(key);
                 const li = document.createElement('li');
-                li.innerHTML = `<div class="nav-item p-2 rounded cursor-pointer mb-1" onclick="navigate('${key}')">${item.title}</div>`;
-                navList.appendChild(li.cloneNode(true));
-                mobileNav.appendChild(li.cloneNode(true));
+                li.innerHTML = `
+                <div class="nav-item p-2 rounded cursor-pointer mb-1 flex items-center gap-2" onclick="navigate('${key}')">
+                    <span class="text-xs">${isCompleted ? '✅' : '📖'}</span>
+                    <span class="flex-1">${item.title}</span>
+                </div>`;
+                navList.appendChild(li);
             });
+            updateProgress();
         }
 
         function navigate(id) {
-            // Aktif durumu güncelle
+            currentChapter = id;
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(el => {
-                if (el.innerText === contentData[id].title) el.classList.add('active');
-            });
+            const navItems = document.querySelectorAll('.nav-item');
+            const chapters = Object.keys(contentData);
+            const idx = chapters.indexOf(id);
+            if (navItems[idx]) navItems[idx].classList.add('active');
 
-            // İçeriği enjekte et
             const contentArea = document.getElementById('content-area');
-            contentArea.innerHTML = contentData[id].content;
+            const data = contentData[id];
+            let html = `<h1 class="text-3xl font-bold mb-6 text-blue-400">${data.title}</h1>`;
 
-            // Mermaid diyagramlarını oluştur
-            mermaid.init(undefined, document.querySelectorAll('.mermaid'));
-
-            // Mobil menüyü kapat
-            document.getElementById('mobile-menu').classList.add('hidden');
-        }
-
-        function buildDictionary() {
-            const dictList = document.getElementById('dict-list');
-            dictList.innerHTML = '';
-            const sortedKeys = Object.keys(dictionary).sort();
-
-            sortedKeys.forEach(key => {
-                const div = document.createElement('div');
-                div.className = 'mb-3 dict-entry';
-                div.innerHTML = `<strong class="text-blue-300">${key}</strong><br><span class="text-gray-400 text-sm">${dictionary[key]}</span>`;
-                dictList.appendChild(div);
-            });
-        }
-
-        function toggleDictionary() {
-            document.getElementById('dict-panel').classList.toggle('open');
-        }
-
-        function filterDictionary() {
-            const query = document.getElementById('dict-search').value.toLowerCase();
-            const entries = document.getElementsByClassName('dict-entry');
-            Array.from(entries).forEach(entry => {
-                const text = entry.innerText.toLowerCase();
-                entry.style.display = text.includes(query) ? 'block' : 'none';
-            });
-        }
-
-        // Başlat
-        mermaid.initialize({ startOnLoad: false, theme: 'dark' });
-        buildNavigation();
-        buildDictionary();
-        navigate('ch1'); // İlk bölümü varsayılan olarak yükle
-
-    </script>
-</body>
-
-</html>
+            data.sections.forEach(sec => {
+                html += `<div class="mb-8 section-block" id="section-${sec.id}">`;
